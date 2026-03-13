@@ -3,6 +3,35 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.2.0] - 2026-03-13
+
+### Changed (Paper — scholarly revision)
+- Removed Executive Summary (collapsed into abstract)
+- Removed IP/Zenodo boilerplate (Sections 6.3, 6.4)
+- Removed Appendices B–D (Dockerfile, Zenodo metadata, artifact manifest)
+- Replaced external PDF figures with inline TikZ (Figure 1: architecture, Figure 2: IS bands with empirical data points)
+- Tightened title to two-line format (removed "IP-Aware Publication" subtitle)
+- Fixed affiliation: "nyxCore Systems Research Division" → "nyxCore Research Division"
+
+### Added
+- `references.bib` with 9 bibliography entries (resolves all [?] citations)
+- Three empirical IS data points plotted in Figure 2 (IS=0.099, 0.256, 0.356)
+
+### Fixed
+- All unresolved `[?]` citations now compile cleanly
+
+## [1.1.1] - 2026-03-13
+
+### Fixed
+- **F014**: Finding count mismatch — abstract and observations updated to "3 critical (incl. 1 blocker), 5 high, 4 medium/low (12 total)" matching pilot data
+
+### Added
+- `backcheck/` directory with Ipcha-on-Ipcha self-review outputs:
+  - `claims.json` (20 extracted claims)
+  - `findings.json` (20 findings with counter-arguments)
+  - `audit_report.md` (gate decision: PASS, F1–F9 diff, IS computation)
+- `paper/v1.0.0/` baseline for IS computation
+
 ## [1.1.0] - 2026-03-13
 
 ### Changed (Paper — post-Ipcha self-review)
@@ -17,10 +46,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 - **F9**: Expanded Related Work from 0.5 to ~2 pages (Fagan, CAI, SPARROW, Debate, ATLAS, Red-Teaming)
 
 ### Added
-- Python reference implementation (`src/ipcha/`)
-- Test suite with mock-based protocol integration test
 - CLAUDE.md task prompt for Claude Code backcheck + implementation
-- CITATION.cff, SECURITY.md
 
 ## [1.0.0] - 2026-03-13
 
