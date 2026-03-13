@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [2.0.0] - 2026-03-13
+
+### Changed (Paper — critics-driven refactoring)
+- **Section 1**: Strengthened problem statement with 2025/2026 empirical evidence (sycophancy is architectural, MAD can degrade accuracy)
+- **Section 2.3**: Acknowledged architectural depth of sycophancy; cited ELEPHANT (Cheng 2026), CAUSM (2025), SDRL (2025); framed IM as structural defense-in-depth, not prompt-based fix
+- **Section 2.5**: Integrated MAD failure modes (Wynn & Satija 2025, Wu et al. 2025); added ColMAD and ConfMAD as cooperative/confidence-weighted alternatives; explicit differentiation of IM from pure debate
+- **Section 4**: Added verbosity bias as explicit false-positive driver; clarified IS (screening) vs IS_w (operational) roles; added formal-logic future direction (LTL, logical preference consistency)
+- **Section 7.2**: Added RAG-specific attack vectors (embedding inversion, cross-chunk coherence attacks); expanded mitigation with runtime coherence validation
+- **Section 7.3**: Added denial-of-wallet attack vector with three concrete mitigations
+- **Section 7.4**: Added auditor warning paradox as limitation distinct from correlated model failures; linked to confidence-weighted arbitration as structural fix
+- **Section 8**: Restructured future work into Evaluation/Architecture/Security categories; added 5 concrete research directions (SDRL agents, ColMAD/ConfMAD migration, CAUSM integration, formal verification metrics, DoW defense)
+
+### Added
+- 7 new references: Wynn 2025, Wu 2025, Cheng 2026, SDRL 2025, ColMAD 2025, CAUSM 2025, ConfMAD 2025
+- Motivated by external PhD-level critique (`backcheck/critics.md`)
+
 ## [1.2.0] - 2026-03-13
 
 ### Changed (Paper — scholarly revision)

@@ -1,9 +1,11 @@
 % =========================
-% FILE: main.tex  (v1.2.0 – post meta-backcheck)
+% FILE: main.tex  (v2.0.0 – post critics integration)
 % PURPOSE: Submission-ready English IMRaD article (article class)
 % COMPILE: pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
-% CHANGES v1.2.0: Authority trust model, IS gaming, role collapse, operational model,
-%         cost-scaling caveat, self-application section. Motivated by IM-on-IM backcheck.
+% CHANGES v2.0.0: Integrate 2025/2026 MAD failure literature (Wynn, Wu),
+%         architectural sycophancy (CAUSM, SDRL, ELEPHANT), cooperative debate
+%         alternatives (ColMAD, ConfMAD), auditor warning paradox, IS honesty
+%         + formal-logic future, denial-of-wallet, RAG hardening.
 % =========================
 \documentclass[11pt,a4paper]{article}
 
@@ -43,7 +45,7 @@
 
 \newcommand{\methodname}{\textsc{Ipcha Mistabra}}
 \newcommand{\protshort}{\textsc{IM~Protocol}}
-\newcommand{\version}{v1.2.0}
+\newcommand{\version}{v2.0.0}
 
 \title{\textbf{Ipcha Mistabra -- Institutionalized Contradiction as a Verification Primitive for Epistemically Robust Text Reviews}}
 \author{Oliver Baer\\nyxCore Research Division\\\texttt{research@nyxcore.cloud}}
@@ -95,8 +97,9 @@ Security-relevant defects often originate early: in requirements, architecture t
 Frameworks such as BSI IT-Grundschutz and NIST SSDF emphasize repeatable, documented security practices including reviews and evidence trails~\cite{bsi_standard_100_2,nist_sp800_218}.
 In practice, however, text reviews are inconsistent: reviewers tend to focus on plausibility rather than falsification, and LLM-assisted reviews can confirm user assumptions even when incorrect (sycophancy)~\cite{sharma_sycophancy}.
 
-Most mitigation strategies target training-time or inference-time behavioral alignment.
+Most mitigation strategies target training-time alignment (e.g., RLHF, Constitutional AI) or inference-time behavioral steering (e.g., system prompts, chain-of-thought).
 These approaches improve average behavior but leave a deeper architectural problem unaddressed: the same system instance is often responsible for both proposing and implicitly validating its own reasoning.
+Recent empirical evidence suggests that this architectural limitation cannot be fully overcome by prompting alone: social sycophancy is rooted in model weights~\cite{cheng2026}, and multi-agent debate can degrade rather than improve group accuracy when agents exhibit social conformity~\cite{wynn2025}.
 
 \subsection{Research Gap}
 % [FIX F1: refined from absolute novelty claim to gap characterization]
@@ -133,9 +136,20 @@ NIST SP~800-218 (SSDF) specifies high-level practices for reducing vulnerability
 These standards motivate reviews but define process guidance rather than an executable verification protocol.
 
 \subsection{Failure Modes of LLM-Assisted Text Analysis}
+\label{sec:sycophancy}
 Sycophancy denotes the tendency of models to confirm user opinions even at the expense of truth~\cite{sharma_sycophancy}.
 Perez et~al.\ showed that model-written evaluations can systematically discover such behavioral failures~\cite{perez2023}.
 For safety-relevant text reviews this is especially critical, because ``confirmation'' can be mistakenly interpreted as ``validation.''
+
+Recent work demonstrates that sycophancy is not merely a prompting artifact but a property rooted in model architecture.
+Cheng et~al.~\cite{cheng2026} measured \emph{social sycophancy} at scale and found that LLMs validate both parties in conflict scenarios up to 48\% of the time, even when explicitly instructed to take a position.
+Causal analyses trace this behavior to spurious correlations in intermediate attention layers; the CAUSM framework~\cite{causm2025} models sycophancy as a structural causal graph and eliminates it through targeted head reweighting---a weight-level intervention that inference-time prompting cannot replicate.
+An orthogonal approach, Self-Debate Reinforcement Learning (SDRL)~\cite{sdrl2025}, trains models via verifiable rewards (RLVR) to extract collaborative value from divergent reasoning paths rather than collapsing to the most fluent consensus.
+
+These findings have direct implications for any multi-agent protocol that assigns adversarial roles via system prompts.
+\methodname{} does not claim to solve architectural sycophancy through prompting alone; its defense is structural: role separation across distinct model instances, evidence binding that forces external grounding, and a gate rule that operates on structured finding data rather than narrative persuasion.
+We acknowledge that the prompt-level contradiction in Appendix~\ref{app:prompts} (``assume the claim is FALSE'') is a first-order approximation.
+Deeper mitigations---CAUSM-calibrated models~\cite{causm2025} or SDRL-trained debaters~\cite{sdrl2025}---are complementary to the protocol and can serve as drop-in replacements for the Ipcha Agent role without changing the surrounding architecture.
 
 \subsection{Constitutional AI and Rule-Based Self-Critique}
 Constitutional AI (CAI)~\cite{bai2022} introduces a set of principles against which a model critiques its own outputs.
@@ -144,9 +158,23 @@ CAI also lacks auditable, persistent finding artifacts and has no formal gate me
 SPARROW~\cite{sparrow2022} extends this with human-authored rules and targeted red-teaming, but remains a training-time intervention rather than a runtime verification protocol.
 
 \subsection{Multi-Agent Debate}
+\label{sec:mad}
 Du et~al.\ demonstrated that multi-agent debate can improve factuality and reasoning by forcing explicit counter-arguments~\cite{du_multiagent_debate}.
-However, debate-based setups typically lack: (i)~an explicit audit role with synthesis authority, (ii)~evidence binding against external sources, and (iii)~a formal gate that blocks output based on finding severity.
-\methodname{} operationalizes adversarial pressure as a verifiable protocol (roles, artifacts, gate rules) rather than a prompt-based heuristic.
+However, subsequent empirical work has revealed fundamental failure modes in the debate paradigm.
+Wynn and Satija~\cite{wynn2025} showed that LLM agents in multi-agent debate exhibit strong social conformity: agents systematically abandon correct minority positions when confronted with eloquent but incorrect majority arguments---a phenomenon they term ``tyranny of the majority''---and group accuracy \emph{degrades} over successive debate rounds.
+Wu et~al.~\cite{wu2025_debate} confirmed through controlled logic-puzzle experiments that structural debate parameters (round count, role assignment, debate order) have negligible effect on accuracy; the dominant performance drivers are individual model strength and architectural diversity of the agent pool.
+
+These findings have motivated two lines of successor work.
+\emph{Cooperative protocols} reframe debate as a non-zero-sum game: ColMAD~\cite{colmad2025} introduces collaborative multi-agent structures in which agents complement rather than defeat each other.
+\emph{Confidence-weighted protocols} such as ConfMAD~\cite{confmad2025} integrate explicit confidence scores into the deliberation process, preventing low-confidence but eloquent arguments from overriding high-confidence minority positions.
+
+These findings constrain the design space for any multi-agent verification system, including \methodname{}.
+The protocol addresses the identified failure modes through three structural mechanisms that distinguish it from pure debate:
+(i)~an explicit audit role that operates over structured finding objects rather than narrative arguments, reducing susceptibility to persuasive falsehoods;
+(ii)~evidence binding against external authority documents, providing a decision anchor independent of agent eloquence; and
+(iii)~a formal gate rule that blocks output based on finding severity, not on consensus or majority opinion.
+The protocol does not claim to solve the social conformity problem in LLMs; rather, it routes the decision through structured data and external references to reduce the surface area where conformity dynamics can cause harm.
+We note that cooperative protocols (ColMAD) and confidence-weighted arbitration (ConfMAD) represent promising architectural alternatives to the current sequential trialectic; their integration is discussed in Section~\ref{sec:outlook}.
 
 \subsection{Multi-Agent Orchestration Frameworks}
 % [FIX F002: explicitly scope against AutoGen, CrewAI, LangGraph]
@@ -393,13 +421,22 @@ The score is \emph{not} comparable across different embedding models.
 The score measures \emph{semantic surface displacement}, not epistemic correction directly.
 Three failure modes must be acknowledged:
 \begin{enumerate}
-  \item \textbf{False positive (high score, low correction):} If the Auditor paraphrases the Proponent output without changing substance, the score inflates. Mitigation: complement with structured finding-level diff (count of status changes in $F$).
+  \item \textbf{False positive (high score, low correction):} If the Auditor paraphrases the Proponent output without changing substance, the score inflates.
+  A pervasive driver is \emph{verbosity bias}: LLMs routinely vary sentence structure, output length, formatting (e.g., prose vs.\ bullet lists), and vocabulary across invocations, producing substantial embedding displacement without altering epistemic content.
+  Mitigation: complement $\mathit{IS}$ with structured finding-level diff (count of status changes in $F$).
   \item \textbf{False negative (low score, high correction):} A single critical sentence change (e.g., ``system is secure'' $\to$ ``system has unmitigated CVE'') may barely shift the embedding centroid. Mitigation: compute a \emph{finding-weighted} variant $\mathit{IS}_w = \sum_{f \in F_{\Delta}} w(f.\mathit{sev})$ over findings that changed status between Proponent and Auditor pass.
   The pilot backcheck confirmed this mode: the v1.0.0$\to$v1.1.0 revision resolved 9~findings yet produced $\mathit{IS} = 0.099$ (low band) because changes were additive rather than substitutive.
   \item \textbf{Adversarial churn inflation (high score, targeted evasion):} An attacker who receives a BLOCK verdict can ``revise'' the artifact by refactoring large unrelated sections while only cosmetically addressing---or obfuscating---the flagged vulnerability. The resulting high $\mathit{IS}$ may be misinterpreted as meaningful correction. Mitigation: the Auditor must verify that each specific flagged finding was resolved on the finding level, not merely that the aggregate semantic distance increased. $\mathit{IS}$ without per-finding resolution tracking is gameable.
 \end{enumerate}
 We recommend reporting $\mathit{IS}$ alongside finding-level metrics (recall, precision) and $\mathit{IS}_w$, and not using $\mathit{IS}$ as a sole decision criterion.
-Future work should validate $\mathit{IS}$ against human expert ratings of correction strength (correlation study).
+The two scores serve distinct purposes: $\mathit{IS}$ requires only the raw text outputs and is therefore computable even for unstructured reviews that lack finding-level annotation; $\mathit{IS}_w$ requires structured findings with severity and status tracking.
+In fully instrumented IM deployments, $\mathit{IS}_w$ is the more reliable operational metric; $\mathit{IS}$ remains useful as a lightweight screening signal and for cross-system comparisons where structured outputs are unavailable.
+
+\paragraph{Toward formal verification metrics.}
+The fundamental limitation of both $\mathit{IS}$ and $\mathit{IS}_w$ is that they measure \emph{surface-level} displacement (embedding vectors) or \emph{structural} change (finding counts), neither of which captures logical validity.
+A critical boolean inversion (e.g., ``the system is secure'' $\to$ ``the system has an unmitigated CVE'') may produce negligible embedding shift while representing the most important correction in the review.
+Future work should investigate formal-logic extraction: translating natural-language claims into structured temporal-logic templates (e.g., LTL) that can be verified by deterministic solvers or theorem provers, and evaluating logical preference consistency via metrics such as transitivity, commutativity, and negation invariance.
+Such approaches would complement the statistical proxy of $\mathit{IS}$ with mathematically verifiable correctness guarantees, moving the protocol from probabilistic screening toward deterministic validation for the subset of claims that admit formal representation.
 
 \begin{figure}[t]
   \centering
@@ -662,10 +699,15 @@ This creates a critical dependency: if an authority document is compromised, out
 An attacker who poisons a referenced best-practices document (e.g., recommending a deprecated cipher, adding an exception to a validation rule) can have the entire trialectic pipeline certify the resulting artifact as compliant.
 This is analogous to a supply-chain attack on knowledge artifacts rather than software dependencies.
 
+Modern RAG-specific attack vectors compound this risk.
+\emph{Embedding inversion} techniques allow adversaries to craft document chunks that are semantically innocuous in isolation but, when retrieved together, reconstruct a coherent malicious instruction---a pattern known as \emph{cross-chunk coherence attack}.
+Because the Ipcha Agent retrieves authority chunks via similarity search, not via a verified index, an attacker who can insert or modify documents in the authority corpus can steer the entire verification pipeline without triggering any individual-chunk anomaly detector.
+
 The current protocol does not provide mitigations for this vector.
 We identify three hardening requirements for production deployment:
 \begin{enumerate}
-  \item \textbf{Version-controlled authority corpus.} All authority documents must be stored in a version-controlled repository with cryptographic integrity guarantees (e.g., GPG-signed commits).
+  \item \textbf{Version-controlled authority corpus with runtime integrity.} All authority documents must be stored in a version-controlled repository with cryptographic integrity guarantees (e.g., GPG-signed commits).
+  At retrieval time, a \emph{cross-chunk coherence validator} should verify that the assembled context from multiple retrieved chunks does not contain instruction-like content or internally contradictory directives that were absent from each individual chunk.
   \item \textbf{Meta-audit cycle.} Authority documents must themselves be subject to periodic adversarial review---either by the \protshort{} itself or by an independent audit process. This prevents ossification.
   \item \textbf{\texttt{UNCLEAR\_AUTHORITY} finding status.} The protocol's finding taxonomy (Definition~4) should be extended with a status value that allows the Ipcha Agent to formally challenge the authority document itself, rather than being constrained to accept it as ground truth. The Auditor can then escalate such findings for human resolution.
 \end{enumerate}
@@ -688,9 +730,32 @@ The ``non-negotiable gate'' described in Section~3.3 is a formal property of the
 For production deployments, we recommend a \emph{risk-acceptance artifact}: when a human overrides a BLOCK decision, the override itself is logged as a signed, auditable record with justification and approver identity.
 This preserves the protocol's audit properties even when the gate is bypassed.
 
+\paragraph{Denial-of-wallet via claim inflation.}
+The protocol's mandatory exhaustive evaluation creates an asymmetric cost exposure.
+An adversary can submit a text artifact $T$ deliberately seeded with thousands of grammatically well-formed but trivially verifiable atomic claims, forcing the trialectic pipeline into massively parallel API evaluation.
+Because the protocol requires the Ipcha Agent to process \emph{every} extracted claim (Algorithm~\ref{alg:contra}, line~2), and modern LLM context windows can accommodate millions of tokens, such an attack can consume significant API budget within minutes---a vector known as \emph{denial of wallet} (DoW).
+Mitigations include:
+(i)~a claim-count budget $|C|_{\max}$ that triggers human escalation rather than exhaustive evaluation when exceeded;
+(ii)~a per-invocation cost ceiling with automatic abort and partial-report generation; and
+(iii)~prioritized claim evaluation---processing claims in descending estimated severity so that the most critical issues surface first, even under budget constraints.
+The asynchronous advisory mode described above naturally limits financial exposure, as non-blocking runs can be terminated without blocking the pipeline.
+
 % [FIX F4: correlated model failures as core limitation]
 \subsection{Limitations}
 \label{sec:limitations}
+
+\paragraph{Auditor failure and the warning paradox.}
+Even when the Ipcha Agent produces correct and well-grounded warnings, the protocol can fail if the Auditor systematically discounts them.
+This is distinct from correlated model failures (below): the Ipcha Agent and Auditor may use architecturally diverse models with uncorrelated blind spots, yet the Auditor may still reject valid warnings because its synthesis heuristic favors consensus, statistical plausibility, or surface-level coherence over outlier signals.
+This phenomenon mirrors the \emph{warning paradox} in intelligence analysis, where institutionalized dissent loses effectiveness when the receiving entity suffers from conceptual rigidity~\cite{wynn2025}.
+An LLM Auditor fine-tuned via RLHF to produce balanced, consensual outputs will structurally down-weight extreme but correct Ipcha findings, because such findings represent statistical outliers in the training distribution.
+The result is a protocol that \emph{performs} contradiction without \emph{acting on it}---the most dangerous failure mode, as it generates a false audit trail of due diligence.
+
+Mitigations include:
+(i)~requiring the Auditor to produce explicit written justification for each rejected Ipcha finding, forcing deliberation rather than reflexive dismissal;
+(ii)~logging rejection ratios as a protocol-level meta-metric---a consistently high rejection rate may indicate Auditor conformity rather than Ipcha noise; and
+(iii)~periodic human review of \emph{rejected} findings (not only accepted ones) to calibrate Auditor behavior.
+Confidence-weighted arbitration~\cite{confmad2025} offers a structural alternative by replacing majority-vote synthesis with confidence-aware aggregation.
 
 \paragraph{Correlated model failures.}
 If all three roles (Proponent, Ipcha Agent, Auditor) are instantiated on the same foundation model, they share systematic biases, training-data blind spots, and failure modes.
@@ -749,6 +814,7 @@ This recursive self-application serves three purposes: (i)~it validates that the
 
 % ================================================================
 \section{Conclusion and Outlook}
+\label{sec:outlook}
 % ================================================================
 \methodname{} institutionalizes contradiction as a verification primitive for safety-relevant text artifacts.
 We provide a formal specification, pseudocode with specified subfunctions, the Ipcha Score as a proxy indicator of semantic displacement with documented failure modes (including adversarial churn inflation), and an evaluation framework.
@@ -758,14 +824,25 @@ A recursive self-application of the protocol to this paper itself (Section~\ref{
 We argue that institutionalized contradiction should be treated as a foundational primitive for AI workflows where decisions must survive scrutiny beyond surface-level fluency.
 The protocol's most significant open challenges are securing the authority document supply chain (Section~\ref{sec:authority-trust}), mitigating correlated model failures, and developing deployment patterns that balance formal gate enforcement with organizational reality (Section~\ref{sec:operational}).
 
-Future work includes
-(i)~controlled evaluation across artifact classes (RQ1--RQ3),
-(ii)~empirical calibration of the Ipcha Score against human expert ratings (RQ4),
-(iii)~cross-domain validation (medical, legal, scientific review),
-(iv)~authority document governance tooling,
-(v)~artifact input sanitization against role-collapse attacks,
-(vi)~model-diversification strategies to mitigate correlated failures, and
-(vii)~integration of deterministic, non-LLM agents into the trialectic to provide architecturally diverse contradiction.
+Future work falls into three categories.
+
+\emph{Evaluation.}
+(i)~Controlled evaluation across artifact classes (RQ1--RQ3).
+(ii)~Empirical calibration of the Ipcha Score against human expert ratings (RQ4).
+(iii)~Cross-domain validation (medical, legal, scientific review).
+(iv)~Evaluation on verifiable logic benchmarks (e.g., Knight-Knave-Spy puzzles~\cite{wu2025_debate}) to isolate debate-quality effects from domain knowledge.
+
+\emph{Architecture.}
+(v)~Replacing prompt-based role assignment with SDRL-trained adversarial agents~\cite{sdrl2025} that are trained via verifiable rewards to resist social conformity.
+(vi)~Migrating the Auditor from sequential synthesis to cooperative protocols (ColMAD~\cite{colmad2025}) or confidence-weighted arbitration (ConfMAD~\cite{confmad2025}) to address the warning paradox identified in Section~\ref{sec:limitations}.
+(vii)~Applying causal sycophancy mitigation (CAUSM~\cite{causm2025}) to Ipcha Agent model weights to provide architectural rather than prompt-level adversarial pressure.
+(viii)~Investigating formal verification metrics: translating extracted claims into temporal-logic templates (e.g., LTL) verifiable by deterministic solvers, and measuring logical preference consistency (transitivity, negation invariance) as a complement to the embedding-based Ipcha Score.
+(ix)~Integration of deterministic, non-LLM agents into the trialectic to provide architecturally diverse contradiction.
+
+\emph{Security.}
+(x)~Authority document governance tooling, including runtime cross-chunk coherence validation against RAG poisoning.
+(xi)~Artifact input sanitization against role-collapse attacks.
+(xii)~Denial-of-wallet defense mechanisms (claim budgets, cost ceilings, prioritized evaluation).
 
 \section*{Acknowledgments}
 % Add acknowledgments here.
