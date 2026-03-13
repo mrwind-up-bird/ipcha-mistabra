@@ -25,6 +25,10 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
+% ---------- Figures (TikZ) ----------
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds}
+
 % ---------- References / links ----------
 \usepackage{hyperref}
 \usepackage{url}
@@ -218,7 +222,52 @@ A prompt chain may implement similar reasoning steps, but without enforcement, p
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\linewidth]{figures/ipcha_architecture_paper.pdf}
+  \begin{tikzpicture}[
+    >=Stealth,
+    node distance=1.8cm and 2.2cm,
+    role/.style={draw, rounded corners=3pt, minimum width=2.8cm,
+                 minimum height=1.4cm, align=center, font=\small},
+    layer/.style={draw, dashed, rounded corners=6pt, inner sep=10pt,
+                  fill=#1, fill opacity=0.06, text opacity=1},
+    lbl/.style={font=\footnotesize\itshape, text=black!70},
+  ]
+    % --- Reasoning layer ---
+    \node[role] (P) {\textbf{Proponent}\\\footnotesize thesis~$O_p$};
+    \node[role, right=of P] (I) {\textbf{Ipcha Agent}\\\footnotesize antithesis~$O_i$};
+    \node[role, right=of I] (A) {\textbf{Auditor}\\\footnotesize synthesis~$O_f$};
+
+    \draw[->, thick] (P) -- (I);
+    \draw[->, thick] (I) -- (A);
+
+    % Input / Output
+    \node[left=1.2cm of P, font=\small, align=center] (in) {Input\\[-2pt]\footnotesize $T, K$};
+    \node[right=1.2cm of A, font=\small, align=center] (out) {Output\\[-2pt]\footnotesize $R, F, g$};
+    \draw[->, thick] (in) -- (P);
+    \draw[->, thick] (A) -- (out);
+
+    % Reasoning layer box
+    \begin{scope}[on background layer]
+      \node[layer=blue, fit=(P)(I)(A), label={[lbl]above:Reasoning Layer}] (RL) {};
+    \end{scope}
+
+    % --- Verification layer ---
+    \node[role, below=1.6cm of P, minimum width=2.4cm] (AG)
+         {\textbf{Authority}\\\textbf{Grounding}\\\footnotesize norms, rules};
+    \node[role, below=1.6cm of I, minimum width=2.4cm] (EM)
+         {\textbf{Epistemic}\\\textbf{Memory}\\\footnotesize prior critiques};
+    \node[role, below=1.6cm of A, minimum width=2.4cm] (WP)
+         {\textbf{Workflow}\\\textbf{Persistence}\\\footnotesize audit trail};
+
+    \begin{scope}[on background layer]
+      \node[layer=black!50, fit=(AG)(EM)(WP),
+            label={[lbl]below:Verification \& Memory Layer}] (VL) {};
+    \end{scope}
+
+    % Connections between layers
+    \draw[<->, densely dotted] (P.south) -- (AG.north);
+    \draw[<->, densely dotted] (I.south) -- (EM.north);
+    \draw[<->, densely dotted] (A.south) -- (WP.north);
+  \end{tikzpicture}
   \caption{High-level architecture of the \methodname{} protocol: reasoning layer (Proponent $\rightarrow$ Ipcha Agent $\rightarrow$ Auditor) with a verification and memory layer providing authority grounding, epistemic memory, and workflow persistence.}
   \label{fig:architecture}
 \end{figure}
@@ -353,8 +402,50 @@ Future work should validate $\mathit{IS}$ against human expert ratings of correc
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.82\linewidth]{figures/ipcha_score_chart.pdf}
-  \caption{Interpretation of the Ipcha Score. Thresholds are preliminary; empirical calibration is required. Higher values indicate stronger semantic displacement between Proponent and final validated output.}
+  \begin{tikzpicture}[x=12cm, y=0.9cm]
+    \def\bandh{1.0}
+    % Band backgrounds
+    \fill[green!12]  (0,0)    rectangle (0.15, \bandh);
+    \fill[yellow!15] (0.15,0) rectangle (0.45, \bandh);
+    \fill[orange!15] (0.45,0) rectangle (0.60, \bandh);
+    \fill[red!12]    (0.60,0) rectangle (0.75, \bandh);
+
+    % Band outlines
+    \draw[black!30] (0,0) rectangle (0.75, \bandh);
+    \foreach \x in {0.15, 0.45, 0.60}
+      \draw[black!30, dashed] (\x,0) -- (\x,\bandh);
+
+    % Band labels
+    \node[font=\footnotesize, align=center] at (0.075, \bandh/2)
+         {Robust initial\\[-2pt]reasoning};
+    \node[font=\footnotesize, align=center] at (0.30, \bandh/2)
+         {Normal dialectical\\[-2pt]refinement};
+    \node[font=\footnotesize, align=center] at (0.525, \bandh/2)
+         {Strong correction\\[-2pt]pressure};
+    \node[font=\footnotesize, align=center] at (0.675, \bandh/2)
+         {Severe\\[-2pt]weakness};
+
+    % Tick marks
+    \foreach \v/\l in {0.0/0.0, 0.15/0.15, 0.30/0.30, 0.45/0.45, 0.60/0.60}
+      \node[font=\scriptsize, below] at (\v, -0.05) {\l};
+
+    % Pilot data points
+    \fill[blue!80!black] (0.099, \bandh+0.35) circle (2.5pt)
+      node[above, font=\scriptsize] {Paper $v1.0{\to}v1.1$};
+    \draw[blue!80!black, dotted] (0.099, 0) -- (0.099, \bandh+0.3);
+
+    \fill[red!70!black] (0.256, \bandh+0.35) circle (2.5pt)
+      node[above, font=\scriptsize] {Pilot: Prepare$\to$Results};
+    \draw[red!70!black, dotted] (0.256, 0) -- (0.256, \bandh+0.3);
+
+    \fill[black!70] (0.356, \bandh+0.35) circle (2.5pt)
+      node[above, font=\scriptsize] {Pilot: Spec$\to$Arbitration};
+    \draw[black!70, dotted] (0.356, 0) -- (0.356, \bandh+0.3);
+
+    % Axis label
+    \node[font=\small, below] at (0.375, -0.35) {Ipcha Score ($\mathit{IS}$)};
+  \end{tikzpicture}
+  \caption{Interpretation of the Ipcha Score with empirical data points from the pilot study and self-backcheck. Thresholds are preliminary; empirical calibration is required. Higher values indicate stronger semantic displacement between Proponent and final validated output.}
   \label{fig:score}
 \end{figure}
 
