@@ -1,8 +1,7 @@
 % =========================
-% FILE: main.tex  (v1.1.0 – post-Ipcha-review)
-% PURPOSE: Submission-ready English IMRaD article (article class)
+% FILE: main.tex  (v1.2.0)
+% PURPOSE: Submission-ready IMRaD article
 % COMPILE: pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
-% CHANGES: Addresses findings F1–F9 from internal Ipcha review pass.
 % =========================
 \documentclass[11pt,a4paper]{article}
 
@@ -40,11 +39,11 @@
 
 \newcommand{\methodname}{\textsc{Ipcha Mistabra}}
 \newcommand{\protshort}{\textsc{IM~Protocol}}
-\newcommand{\version}{v1.1.0}
+\newcommand{\version}{v1.2.0}
 \newcommand{\doiPlaceholder}{10.5281/zenodo.\textbf{XXXXXXX}}
 
-\title{\textbf{Ipcha Mistabra -- Institutionalized Contradiction as a Verification Primitive for Epistemically Robust Text Reviews}\\[4pt]
-\large A Trialectic Questioning Protocol with Reproducible Artifacts and IP-Aware Publication}
+\title{\textbf{Ipcha Mistabra}\\[4pt]
+\large Institutionalized Contradiction as a Verification Primitive\\for Epistemically Robust Text Reviews}
 \author{Oliver Baer\\nyxCore Systems Research Division\\\texttt{research@nyxcore.cloud}}
 \date{March 2026}
 
@@ -52,48 +51,25 @@
 \maketitle
 
 % ------------------------------------------------
-\section*{Executive Summary}
-% ------------------------------------------------
-Safety-critical decisions frequently depend on textual artifacts---specifications, policies, architecture documents, and threat models.
-Yet text-based reviews, whether manual or LLM-assisted, remain susceptible to confirmation bias, hallucination, and insufficient self-validation.
-This paper introduces \methodname{}, a verification protocol that institutionalizes contradiction as a mandatory review phase:
-a \emph{Proponent} extracts claims and produces an initial assessment; an \emph{Ipcha Agent} (contradictor) systematically constructs counter-hypotheses and demands evidence; an \emph{Auditor} consolidates findings, enforces evidence binding, and renders release-gate decisions.
-We define formal objects (Claim, Evidence, Finding), the \emph{Ipcha Score} as a proxy indicator of semantic displacement between initial and validated output, provide implementable pseudocode with subfunctions, and outline a reproducible experiment design.
-The manuscript integrates artifact and IP constraints for Zenodo/DOI publication and double-blind submissions.
-
-% ------------------------------------------------
 \begin{abstract}
-\textbf{Background:}
-Reviews of security and compliance text artifacts are central to established frameworks (e.g., BSI IT-Grundschutz, NIST SSDF), yet remain heterogeneous and error-prone in practice~\cite{bsi_standard_100_2,nist_sp800_218}.
-\\
-\textbf{Problem:}
-Modern text-based assistants can over-confirm user assumptions (sycophancy) and, without independent counter-review, contribute to a false sense of security~\cite{sharma_sycophancy}.
-Existing approaches---including formal inspections, Constitutional AI, and multi-agent debate---address partial aspects but do not combine mandatory adversarial roles, auditable artifacts, and evidence-bound gate rules into a single implementable protocol (see Section~\ref{sec:related}).
-\\
-\textbf{Objective:}
-We introduce a methodology that operationalizes contradiction as a mandatory verification stage, enabling systematic falsification or evidence-based support of claims and assumptions in text.
-\\
-\textbf{Method:}
-\methodname{} defines a trialectic workflow comprising \emph{Proponent} (thesis), \emph{Ipcha Agent} (antithesis), and \emph{Auditor} (synthesis).
-The protocol extracts atomic claims, generates adversarial challenge questions and counter-hypotheses, requires evidence, and produces auditable findings and remediation plans.
-\\
-\textbf{Evaluation (plan + pilot):}
-We outline a within-subject experiment comparing a single-pass baseline with \methodname{} across multiple artifact classes (placeholder datasets), with metrics (recall/precision, risk-weighted residual errors, effort), inter-rater reliability, and a statistical analysis plan (paired tests, mixed models, FDR control).
-A pilot case study applies the protocol to a production design specification, surfacing 3~critical (including 1~blocker), 5~high-severity, and 4~medium/low findings (12~total) that were subsequently resolved.
-\\
-\textbf{Expected results \& limitations:}
-Higher finding coverage and lower residual errors at increased effort; limitations include ground-truth cost, correlated model failures when roles share a foundation model, and evidence-dependent validation.
-\\
-\textbf{Reproducibility/IP:}
-The paper contains a Zenodo-ready artifact manifest and summarizes IP constraints (DE/EU/US) as well as Zenodo metadata publicity~\cite{zenodo_policies,patg_par3,epue_art54}.
+Reviews of security and compliance text artifacts are central to established frameworks such as BSI IT-Grundschutz and NIST SSDF, yet remain heterogeneous and error-prone in practice~\cite{bsi_standard_100_2,nist_sp800_218}.
+Modern LLM-assisted text analysis exacerbates this problem through sycophancy---the tendency to confirm user assumptions even when incorrect~\cite{sharma_sycophancy}---and the architectural conflation of generation and validation within a single model instance.
+Existing mitigations, including formal inspections~\cite{fagan1976}, Constitutional AI~\cite{bai2022}, and multi-agent debate~\cite{du_multiagent_debate}, address partial aspects but do not combine mandatory adversarial roles, auditable artifacts, evidence binding, and formal gate rules into a single implementable protocol.
+
+We introduce \methodname{}, a trialectic verification protocol comprising three roles: a \emph{Proponent} (thesis) extracts atomic claims and produces an initial assessment; an \emph{Ipcha Agent} (antithesis) systematically constructs counter-hypotheses grounded in authority documents; an \emph{Auditor} (synthesis) consolidates findings, enforces evidence binding, and renders a formal gate decision.
+We define the protocol's formal objects (Claim, Assumption, Evidence, Finding, Gate Rule), provide implementable pseudocode with specified subfunctions, and introduce the \emph{Ipcha Score}---a divergence-based proxy indicator of semantic displacement between initial and validated output.
+
+A pilot case study applying the protocol to a production design specification surfaced 3~critical, 5~high-severity, and 4~medium/low findings (12~total) at a cost of \$0.20 and 2.8~minutes of wall-clock time.
+All critical and high-severity findings were subsequently resolved through architectural hardening.
+We additionally present a within-subject evaluation design with statistical analysis plan for future controlled studies.
 \end{abstract}
 
 \vspace{0.5em}
 \noindent\textbf{Keywords:}
-security analysis; hardening; text review; adversarial questioning; reproducibility; research artifacts; IP strategy; Ipcha Score.
+text review; adversarial verification; LLM sycophancy; structured falsification; security analysis; formal gate rules.
 
 \vspace{0.5em}
-\noindent\textbf{ACM CCS Concepts (suggested):}
+\noindent\textbf{ACM CCS Concepts:}
 \begin{itemize}
   \item Security and privacy $\rightarrow$ Software security engineering.
   \item Software and its engineering $\rightarrow$ Software verification and validation.
@@ -103,84 +79,69 @@ security analysis; hardening; text review; adversarial questioning; reproducibil
 % ================================================================
 \section{Introduction}
 % ================================================================
-Security-relevant defects often originate early: in requirements, architecture texts, policies, and threat models.
-Frameworks such as BSI IT-Grundschutz and NIST SSDF emphasize repeatable, documented security practices including reviews and evidence trails~\cite{bsi_standard_100_2,nist_sp800_218}.
-In practice, however, text reviews are inconsistent: reviewers tend to focus on plausibility rather than falsification, and LLM-assisted reviews can confirm user assumptions even when incorrect (sycophancy)~\cite{sharma_sycophancy}.
+Security-relevant defects frequently originate in textual artifacts---requirements, architecture documents, policies, and threat models---before they manifest in code.
+Frameworks such as BSI IT-Grundschutz and NIST SSDF prescribe repeatable, documented reviews with evidence trails~\cite{bsi_standard_100_2,nist_sp800_218}, yet in practice these reviews remain inconsistent: reviewers tend toward plausibility confirmation rather than systematic falsification, and LLM-assisted reviews can reinforce this tendency through sycophancy~\cite{sharma_sycophancy}.
 
-Most mitigation strategies target training-time or inference-time behavioral alignment.
-These approaches improve average behavior but leave a deeper architectural problem unaddressed: the same system instance is often responsible for both proposing and implicitly validating its own reasoning.
+Current mitigations target training-time or inference-time behavioral alignment.
+These improve average model behavior but leave a deeper architectural problem unaddressed: the same system instance is often responsible for both proposing and implicitly validating its own reasoning.
+This conflation of generation and validation within a single agent creates a structural blind spot that alignment alone cannot resolve.
 
 \subsection{Research Gap}
-% [FIX F1: refined from absolute novelty claim to gap characterization]
-Several existing approaches address overlapping aspects of this problem: formal inspection methods enforce structured review~\cite{fagan1976}, Constitutional AI introduces rule-based self-critique~\cite{bai2022}, and multi-agent debate generates adversarial counter-arguments~\cite{du_multiagent_debate}.
+\label{sec:gap}
+Several existing approaches address overlapping aspects of this problem.
+Formal inspection methods enforce structured review with role separation~\cite{fagan1976}; Constitutional AI introduces rule-based self-critique~\cite{bai2022}; multi-agent debate generates adversarial counter-arguments to improve factuality~\cite{du_multiagent_debate}; and orchestration frameworks such as AutoGen~\cite{autogen2023} provide infrastructure for multi-agent pipelines.
 However, none of these approaches combine all of the following in a single implementable protocol:
-(i)~extraction of atomic claims from text artifacts,
-(ii)~mandatory adversarial contradiction as a distinct role with auditable outputs,
-(iii)~evidence binding between claims and external authority documents, and
-(iv)~a formal gate rule over findings with severity-weighted blocking.
+\begin{enumerate}
+  \item[(i)] extraction of atomic claims from text artifacts,
+  \item[(ii)] mandatory adversarial contradiction as a distinct role with auditable outputs,
+  \item[(iii)] evidence binding between claims and external authority documents, and
+  \item[(iv)] a formal gate rule over findings with severity-weighted blocking.
+\end{enumerate}
 Table~\ref{tab:comparison} provides a systematic feature comparison.
+Note that orchestration frameworks (AutoGen, CrewAI, LangGraph) are complementary infrastructure layers: they define \emph{how} agents communicate, not \emph{what} must happen during a review.
+\methodname{} specifies the verification semantics that can be implemented on top of any such framework.
 
 \subsection{Contributions}
 \begin{enumerate}
-  \item \textbf{Protocol:} \methodname{} as a trialectic verification primitive for text artifacts.
-  \item \textbf{Formalization:} Definitions (claim, assumption, evidence, finding), pseudocode with specified subfunctions.
-  \item \textbf{Ipcha Score:} A divergence-based proxy indicator of semantic displacement, with specified embedding model and known limitations (Section~\ref{sec:score}).
-  \item \textbf{Evaluation:} Statistical analysis plan for future controlled studies, plus a pilot case study demonstrating protocol application on a production design specification (Section~\ref{sec:pilot}).
-  \item \textbf{Reproducibility \& IP:} Artifact manifest, Zenodo-ready metadata, and IP constraints~\cite{zenodo_policies,patg_par3,geschgehg_par2,epue_art54}.
+  \item \textbf{Protocol.} \methodname{} as a trialectic verification primitive for text artifacts, with formal definitions, pseudocode, and specified subfunctions.
+  \item \textbf{Ipcha Score.} A divergence-based metric of semantic displacement between review phases, with specified embedding model and documented failure modes (Section~\ref{sec:score}).
+  \item \textbf{Pilot validation.} A case study demonstrating protocol application on a production design specification, surfacing 12~findings across two LLM providers (Section~\ref{sec:pilot}).
+  \item \textbf{Evaluation design.} A within-subject experimental framework with statistical analysis plan for future controlled studies.
 \end{enumerate}
 
 % ================================================================
 \section{Related Work}
 \label{sec:related}
 % ================================================================
-% [FIX F1, F9: substantially expanded Related Work with differentiation table]
 
 \subsection{Formal Inspection and Structured Review}
 Fagan inspection~\cite{fagan1976} introduced role-separated code and document review (author, moderator, inspector, reader) with defined phases (overview, preparation, meeting, rework, follow-up).
 The method demonstrated significant defect-detection improvement but is manual, synchronous, and does not formalize evidence binding or produce machine-auditable artifacts.
 \methodname{} inherits the principle of role separation but extends it with formal claim/evidence structures and automated gate rules.
 
-\subsection{Document-Based Security Processes}
-BSI IT-Grundschutz describes a systematic approach to information security in which documentation and security review play central roles~\cite{bsi_standard_100_2}.
-NIST SP~800-218 (SSDF) specifies high-level practices for reducing vulnerability risk across the SDLC~\cite{nist_sp800_218}.
-These standards motivate reviews but define process guidance rather than an executable verification protocol.
-
 \subsection{Failure Modes of LLM-Assisted Text Analysis}
-Sycophancy denotes the tendency of models to confirm user opinions even at the expense of truth~\cite{sharma_sycophancy}.
+Sycophancy denotes the tendency of models to confirm user opinions at the expense of truth~\cite{sharma_sycophancy}.
 Perez et~al.\ showed that model-written evaluations can systematically discover such behavioral failures~\cite{perez2023}.
-For safety-relevant text reviews this is especially critical, because ``confirmation'' can be mistakenly interpreted as ``validation.''
+For safety-relevant text reviews, this is especially critical: ``confirmation'' can be mistakenly interpreted as ``validation,'' creating a false sense of security.
 
 \subsection{Constitutional AI and Rule-Based Self-Critique}
 Constitutional AI (CAI)~\cite{bai2022} introduces a set of principles against which a model critiques its own outputs.
-This is a single-model approach: the same instance generates and evaluates, which does not structurally prevent correlated blind spots.
+As a single-model approach in its default deployment, CAI does not structurally prevent correlated blind spots: the same instance generates and evaluates.
 CAI also lacks auditable, persistent finding artifacts and has no formal gate mechanism.
-SPARROW~\cite{sparrow2022} extends this with human-authored rules and targeted red-teaming, but remains a training-time intervention rather than a runtime verification protocol.
+SPARROW~\cite{sparrow2022} extends this with human-authored rules and targeted red-teaming but remains a training-time intervention rather than a runtime verification protocol.
 
 \subsection{Multi-Agent Debate}
 Du et~al.\ demonstrated that multi-agent debate can improve factuality and reasoning by forcing explicit counter-arguments~\cite{du_multiagent_debate}.
 However, debate-based setups typically lack: (i)~an explicit audit role with synthesis authority, (ii)~evidence binding against external sources, and (iii)~a formal gate that blocks output based on finding severity.
-\methodname{} operationalizes adversarial pressure as a verifiable protocol (roles, artifacts, gate rules) rather than a prompt-based heuristic.
-
-\subsection{Multi-Agent Orchestration Frameworks}
-% [FIX F002: explicitly scope against AutoGen, CrewAI, LangGraph]
-Frameworks such as AutoGen~\cite{autogen2023}, CrewAI, and LangGraph provide execution infrastructure for multi-agent LLM pipelines---role assignment, message routing, tool use, and workflow orchestration.
-These are \emph{orchestration} layers: they define how agents communicate, not \emph{what} must happen during a review.
-\methodname{} is complementary: it specifies the verification semantics (mandatory contradiction, evidence binding, formal gate rules) that can be \emph{implemented on top of} any orchestration framework.
-An AutoGen pipeline can execute the IM~Protocol, but AutoGen itself does not prescribe contradiction, audit, or gating.
+\methodname{} operationalizes adversarial pressure as a verifiable protocol---with defined roles, typed artifacts, and gate rules---rather than a prompt-based heuristic.
 
 \subsection{Adversarial Testing and Red-Teaming}
 Perez et~al.~\cite{perez2023} and the MITRE ATLAS framework provide taxonomies and tooling for adversarial testing of AI systems.
-These focus on model-level vulnerability discovery rather than on text-artifact review.
+These focus on model-level vulnerability discovery rather than text-artifact review.
 \methodname{} addresses a different surface: it reviews the \emph{outputs} (documents, specifications) rather than testing the \emph{model itself}.
 
-\subsection{Reproducibility and Artifact Policies}
-Security venues increasingly require and formally evaluate artifacts.
-USENIX Security~2026 requires open artifact sharing \emph{at submission time} (with justified exceptions) and ties acceptance to continued availability~\cite{usenix_sec26_artifacts,usenix_sec26_cfp}.
-ACM CCS~2026 requires that artifacts be accessible during double-blind review (anonymous URLs/credentials)~\cite{ccs_2026_cfp}.
-ACM additionally defines standardized artifact badges~\cite{acm_artifact_badging}.
-
 \subsection{Systematic Positioning}
-% [FIX F1: differentiation matrix]
+
 \begin{table}[t]
 \centering
 \small
@@ -207,13 +168,12 @@ Domain-agnostic design     & \checkmark & \checkmark & \checkmark & --         &
 % ================================================================
 
 \subsection{Problem Formulation}
-Given a text artifact $T$ (e.g., specification, policy) and context $K$ (domain, threat model, norms/authority documents).
-The objective is to produce $R$, an auditable report containing findings~$F$, evidence bindings, and a remediation plan; optionally with a gate decision (release/block).
+Given a text artifact $T$ (e.g., specification, policy) and context $K$ (domain, threat model, norms/authority documents), the objective is to produce an auditable report $R$ containing findings~$F$, evidence bindings, and a remediation plan, together with a gate decision $g \in \{0,1\}$ (release/block).
 
 \subsection{Formal Definitions}
 
 \textbf{Definition~1 (Claim).}
-A \emph{claim} $c$ is an atomic, verifiable statement from $T$ (e.g., ``data is encrypted in transit'').
+A \emph{claim} $c$ is an atomic, verifiable statement extracted from $T$ (e.g., ``data is encrypted in transit'').
 The set of all claims is $C=\{c_1,\dots,c_n\}$.
 
 \textbf{Definition~2 (Assumption).}
@@ -229,32 +189,31 @@ A finding is a tuple
 \[
   f = (\mathit{id}, c, \mathit{sev}, \mathit{rationale}, E_f, \mathit{remediation}, \mathit{status})
 \]
-with evidence subset $E_f \subseteq E$, severity $\mathit{sev}$, and status $\in \{\text{accepted}, \text{refuted}, \text{needs-evidence}\}$.
+with evidence subset $E_f \subseteq E$, severity $\mathit{sev} \in \{\text{critical}, \text{high}, \text{medium}, \text{low}\}$, and status $\in \{\text{accepted}, \text{refuted}, \text{needs-evidence}\}$.
 
 \textbf{Definition~5 (Gate Rule).}
-A gate rule $\mathcal{G}(F)\in\{0,1\}$ decides whether release/approval is permitted, e.g.:
+A gate rule $\mathcal{G}(F)\in\{0,1\}$ decides whether release is permitted:
 \[
   \mathcal{G}(F)=1 \iff \nexists\, f\in F:\;(f.\mathit{status}\neq\text{refuted}) \;\land\; (f.\mathit{sev} \ge \text{high}).
 \]
 
-% [FIX F7: explicit protocol vs. prompt differentiation]
 \subsection{What Makes This a Protocol, Not a Prompt Chain}
 \label{sec:protocol-criteria}
 The term ``protocol'' is used deliberately.
-Three structural properties distinguish \methodname{} from prompt-based heuristics such as ``ask the model to critique itself'':
+Three structural properties distinguish \methodname{} from prompt-based heuristics:
 \begin{enumerate}
-  \item \textbf{Mandatory execution:} Contradiction is not an optional step that a user may skip; the workflow engine enforces it as a required stage before gate evaluation.
-  \item \textbf{Persistent, auditable artifacts:} Each phase (Proponent, Ipcha, Auditor) produces a typed output ($O_p$, $O_i$, $O_f$) that is stored, versioned, and available for external audit.
-  \item \textbf{Formal gate mechanism:} The gate rule $\mathcal{G}$ operates over structured finding objects, not over free-text opinions; a BLOCK decision prevents release regardless of subjective confidence.
+  \item \textbf{Mandatory execution.} Contradiction is not an optional step; the workflow engine enforces it as a required stage before gate evaluation.
+  \item \textbf{Persistent, auditable artifacts.} Each phase produces a typed output ($O_p$, $O_i$, $O_f$) that is stored, versioned, and available for external audit.
+  \item \textbf{Formal gate mechanism.} The gate rule $\mathcal{G}$ operates over structured finding objects, not free-text opinions; a \textsc{block} decision prevents release regardless of subjective confidence.
 \end{enumerate}
 A prompt chain may implement similar reasoning steps, but without enforcement, persistence, and gating it remains advisory rather than binding.
 
 \subsection{Protocol Overview (Trialectic)}
 \methodname{} employs three roles (see Figure~\ref{fig:architecture}):
 \begin{itemize}
-  \item \textbf{Proponent~(P):} extracts claims/assumptions, produces initial review $O_p$ and initial findings $F_p$.
-  \item \textbf{Ipcha Agent~(I):} generates strongest counter-narratives, counter-hypotheses, and evidence demands; produces $O_i$ and $F_i$.
-  \item \textbf{Auditor~(A):} consolidates, deduplicates, prioritizes; enforces evidence; renders gate decision; produces final $O_f$.
+  \item \textbf{Proponent~(P):} extracts claims and assumptions, produces initial review $O_p$ and findings $F_p$.
+  \item \textbf{Ipcha Agent~(I):} generates counter-narratives, counter-hypotheses, and evidence demands; produces $O_i$ and $F_i$.
+  \item \textbf{Auditor~(A):} consolidates, deduplicates, and prioritizes; enforces evidence binding; renders gate decision; produces final $O_f$.
 \end{itemize}
 
 \begin{figure}[t]
@@ -279,13 +238,13 @@ Generate $O_p$ and findings $F_p$ with evidence requirements.
 Falsify: counterexamples, contradictions, missing prerequisites, norm/policy conflicts; generate $O_i$, $F_i$.
 
 \paragraph{Step~4: Audit Resolution.}
-Merge $F=\mathrm{merge}(F_p, F_i)$; status decisions; remediation plan.
+Merge $F=\mathrm{merge}(F_p, F_i)$; render status decisions; produce remediation plan.
 
 \paragraph{Step~5: Gate.}
 Apply $\mathcal{G}$ (release/block).
 
 \paragraph{Step~6: Metrics.}
-Compute review metrics (e.g., finding counts, effort; Ipcha Score as divergence indicator).
+Compute review metrics (finding counts, effort, Ipcha Score).
 
 \subsection{Top-Level Pseudocode}
 \begin{algorithm}[h]
@@ -304,7 +263,6 @@ Compute review metrics (e.g., finding counts, effort; Ipcha Score as divergence 
 \end{algorithmic}
 \end{algorithm}
 
-% [FIX F6: detailed subfunctions]
 \subsection{Subfunction Specifications}
 
 \begin{algorithm}[h]
@@ -352,13 +310,12 @@ Compute review metrics (e.g., finding counts, effort; Ipcha Score as divergence 
 \end{algorithm}
 
 \noindent When instantiated with an LLM, each subfunction maps to a structured prompt with typed output schema.
-Appendix~\ref{app:prompts} provides example prompt templates.
+Appendix~\ref{app:prompts} provides reference prompt templates.
 
 % ================================================================
 \section{Ipcha Score}
 \label{sec:score}
 % ================================================================
-% [FIX F2: fully specified with embedding model, caveats, validation requirements]
 
 We define the \textbf{Ipcha Score} as a divergence-based proxy indicator of semantic displacement between the Proponent output and the final Auditor output:
 
@@ -376,20 +333,20 @@ The score is \emph{not} comparable across different embedding models.
 
 \paragraph{Interpretation (see Figure~\ref{fig:score}).}
 \begin{itemize}
-  \item \textbf{Low score} ($< 0.15$): the original answer was already robust, or critique was weak.
+  \item \textbf{Low score} ($< 0.15$): the original output was already robust, or critique was weak.
   \item \textbf{Mid-range} ($0.15$--$0.45$): normal dialectical refinement; the expected operating range for useful adversarial review.
   \item \textbf{High score} ($> 0.45$): substantial correction pressure; important weaknesses were discovered and resolved.
 \end{itemize}
 
-\noindent The threshold values above are preliminary and derived from early pilot observations; they require empirical calibration across artifact types and domains before operational use.
+\noindent These thresholds are preliminary; empirical calibration across artifact types and domains is required before operational use.
 
-\paragraph{Known limitations of the Ipcha Score.}
+\paragraph{Known limitations.}
 \label{sec:score-limits}
 The score measures \emph{semantic surface displacement}, not epistemic correction directly.
 Two failure modes must be acknowledged:
 \begin{enumerate}
-  \item \textbf{False positive (high score, low correction):} If the Auditor paraphrases the Proponent output without changing substance, the score inflates. Mitigation: complement with structured finding-level diff (count of status changes in $F$).
-  \item \textbf{False negative (low score, high correction):} A single critical sentence change (e.g., ``system is secure'' $\to$ ``system has unmitigated CVE'') may barely shift the embedding centroid. Mitigation: compute a \emph{finding-weighted} variant $\mathit{IS}_w = \sum_{f \in F_{\Delta}} w(f.\mathit{sev})$ over findings that changed status between Proponent and Auditor pass.
+  \item \textbf{False positive (high score, low correction).} If the Auditor paraphrases the Proponent output without changing substance, the score inflates. Mitigation: complement with structured finding-level diff (count of status changes in $F$).
+  \item \textbf{False negative (low score, high correction).} A single critical sentence change (e.g., ``system is secure'' $\to$ ``system has unmitigated CVE'') may barely shift the embedding centroid. Mitigation: compute a \emph{finding-weighted} variant $\mathit{IS}_w = \sum_{f \in F_{\Delta}} w(f.\mathit{sev})$ over findings that changed status between Proponent and Auditor pass.
 \end{enumerate}
 We recommend reporting $\mathit{IS}$ alongside finding-level metrics (recall, precision) and not using it as a sole decision criterion.
 Future work should validate $\mathit{IS}$ against human expert ratings of correction strength (correlation study).
@@ -397,26 +354,26 @@ Future work should validate $\mathit{IS}$ against human expert ratings of correc
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.82\linewidth]{figures/ipcha_score_chart.pdf}
-  \caption{Conceptual interpretation of the Ipcha Score. Thresholds are preliminary; empirical calibration is required. Higher values indicate stronger semantic displacement between Proponent and final validated output.}
+  \caption{Interpretation of the Ipcha Score. Thresholds are preliminary; empirical calibration is required. Higher values indicate stronger semantic displacement between Proponent and final validated output.}
   \label{fig:score}
 \end{figure}
 
 % ================================================================
-\section{Evaluation}
+\section{Evaluation Design}
 % ================================================================
 
 \subsection{Research Questions}
 \begin{itemize}
-  \item \textbf{RQ1:} Does \methodname{} increase finding recall/precision relative to single-pass reviews?
+  \item \textbf{RQ1:} Does \methodname{} increase finding recall and precision relative to single-pass reviews?
   \item \textbf{RQ2:} Does \methodname{} reduce risk-weighted residual errors and policy violations?
-  \item \textbf{RQ3:} What cost/benefit trade-offs arise (time, compute/tokens, human rework)?
+  \item \textbf{RQ3:} What cost/benefit trade-offs arise (time, compute, human rework)?
   \item \textbf{RQ4:} Does the Ipcha Score correlate with human-judged correction strength?
 \end{itemize}
 
-\subsection{Design (Placeholder-Driven)}
-\textbf{Design:} Within-subject: each artifact is reviewed with baseline (single-pass) and \methodname{}.\\
-\textbf{Artifact classes (placeholder):} $D_{\text{spec}}$, $D_{\text{policy}}$, $D_{\text{threat}}$, $D_{\text{compliance}}$.\\
-\textbf{Ground truth:} Expert panel or consensus labeling; IRR is reported (see below).
+\subsection{Experimental Design}
+\textbf{Design:} Within-subject: each artifact is reviewed with both a baseline (single-pass) and \methodname{}.\\
+\textbf{Artifact classes:} $D_{\text{spec}}$, $D_{\text{policy}}$, $D_{\text{threat}}$, $D_{\text{compliance}}$.\\
+\textbf{Ground truth:} Expert panel or consensus labeling; inter-rater reliability is reported.
 
 \subsection{Metrics}
 \begin{table}[h]
@@ -424,22 +381,21 @@ Future work should validate $\mathit{IS}$ against human expert ratings of correc
 \begin{tabular}{@{}ll@{}}
 \toprule
 Metric & Definition / Measurement \\ \midrule
-Finding Recall & Proportion of confirmed ground-truth findings discovered \\
+Finding Recall & Proportion of ground-truth findings discovered \\
 Finding Precision & Proportion of reported findings confirmed by experts \\
-Risk-Weighted Residual Error & Sum of severity for open/high findings after gate \\
+Risk-Weighted Residual Error & Sum of severity for unresolved findings after gate \\
 Policy/Compliance Violations & Rate of violations against defined rules/standards \\
-Review Effort & Time (min), compute/tokens (placeholder), rework (min) \\
+Review Effort & Time (min), token consumption, rework (min) \\
 Ipcha Score ($\mathit{IS}$) & Divergence measure per Equation~\ref{eq:ipcha-score} \\
 Finding-Weighted Score ($\mathit{IS}_w$) & Severity-weighted status-change count \\
-IRR & Cohen's $\kappa$ / Krippendorff's $\alpha$ (depending on setup) \\ \bottomrule
+IRR & Cohen's $\kappa$ / Krippendorff's $\alpha$ \\ \bottomrule
 \end{tabular}
-\caption{Evaluation metrics (numeric values: placeholder).}
+\caption{Evaluation metrics.}
 \end{table}
 
-% [FIX F3: benchmarks reframed as hypothesized direction, not pseudo-data]
 \subsection{Hypothesized Direction of Effect}
-Based on related findings in multi-agent debate~\cite{du_multiagent_debate} and structured inspection~\cite{fagan1976}, we hypothesize the following directional effects.
-These are \emph{not empirical results}; they define the evaluation target structure for future studies.
+Based on findings in multi-agent debate~\cite{du_multiagent_debate} and structured inspection~\cite{fagan1976}, we hypothesize the following directional effects.
+These are \emph{not empirical results}; they define the evaluation target structure for future controlled studies.
 
 \begin{table}[h]
 \centering
@@ -462,27 +418,27 @@ Output validity & $\uparrow$ & Audit resolution improves final quality \\
 \textbf{Paired comparisons:} Wilcoxon signed-rank (nonparametric) or paired $t$-test (if normality is plausible), plus effect size (Cliff's delta / Cohen's $d$).\\
 \textbf{Mixed models:} Logistic/mixed effects for violations; ``artifact'' as random effect.\\
 \textbf{Multiple testing:} FDR control (Benjamini--Hochberg).\\
-\textbf{Power:} A~priori power analysis (placeholder; depends on expected effect size).\\
+\textbf{Power:} A~priori power analysis; depends on expected effect size from pilot observations.\\
 \textbf{Score validation (RQ4):} Spearman rank correlation between $\mathit{IS}$ and expert-rated correction strength.
 
 % ================================================================
-\section{Pilot Case Study: Persona Evaluation v2 Specification}
+\section{Pilot Case Study: Persona Evaluation Specification}
 \label{sec:pilot}
 % ================================================================
 
-To validate the protocol beyond its formal definition, we applied \methodname{} to a production design specification: the \emph{Persona Evaluation v2} spec for a multi-tenant AI platform (nyxCore).
-The specification proposed a comprehensive overhaul of persona quality evaluation, introducing structured persona profiles (\texttt{PersonaProfile} interface), a judge-based scoring architecture, adversarial exploitation tests, and an auto-derivation pipeline for custom personas.
+To validate the protocol beyond its formal definition, we applied \methodname{} to a production design specification: the \emph{Persona Evaluation v2} spec for a multi-tenant AI platform.
+The specification proposed a comprehensive overhaul of persona quality evaluation, introducing structured persona profiles, a judge-based scoring architecture, adversarial exploitation tests, and an auto-derivation pipeline.
 The document was internally consistent and considered implementation-ready by its author.
 
 \subsection{Workflow Execution}
-The protocol was instantiated as workflow \texttt{746b1ec0} using a five-step pipeline:
+The protocol was instantiated using a five-step pipeline:
 
 \begin{enumerate}
-  \item \textbf{Prepare} -- Extract core thesis, key claims, and implicit assumptions from the artifact.
-  \item \textbf{Adversarial Analysis} -- Multi-provider fan-out: the enriched spec was distributed across provider-lens combinations, each performing structured falsification from a distinct perspective.
-  \item \textbf{Synthesis} -- Aggregate cross-model findings; distinguish unique findings, convergent findings, contradictions, and blind spots.
-  \item \textbf{Arbitration} -- Render final verdict, resolving inter-provider contradictions.
-  \item \textbf{Results} -- Produce structured \texttt{ReviewKeyPoint} objects with severity, category, and actionable suggestions; pause for human review.
+  \item \textbf{Prepare.} Extract core thesis, key claims, and implicit assumptions from the artifact.
+  \item \textbf{Adversarial Analysis.} Multi-provider fan-out: the enriched specification was distributed across provider-lens combinations, each performing structured falsification from a distinct analytical perspective.
+  \item \textbf{Synthesis.} Aggregate cross-model findings; distinguish unique findings, convergent findings, contradictions, and blind spots.
+  \item \textbf{Arbitration.} Render final verdict, resolving inter-provider contradictions.
+  \item \textbf{Results.} Produce structured finding objects with severity, category, and actionable suggestions; pause for human review.
 \end{enumerate}
 
 \paragraph{Provider configuration.}
@@ -500,7 +456,7 @@ Moonshot & kimi-k2-0711-preview & 13{,}634 & \$0.000 & 4 \\
 \textbf{Total} & & \textbf{77{,}773} & \textbf{\$0.198} & \textbf{12} \\
 \bottomrule
 \end{tabular}
-\caption{Provider metrics for workflow \texttt{746b1ec0}. Total wall-clock time: 2.8\,min.}
+\caption{Provider metrics for the pilot workflow. Total wall-clock time: 2.8\,min.}
 \label{tab:pilot-providers}
 \end{table}
 
@@ -508,17 +464,16 @@ Moonshot & kimi-k2-0711-preview & 13{,}634 & \$0.000 & 4 \\
 Each provider-lens combination examined the artifact from a distinct perspective: \emph{Security \& Attack Surface} (injection vectors, data exposure), \emph{Scalability \& Operational} (performance under load, distributed deployment), \emph{Organizational \& Process} (adoption barriers, developer incentives, Goodhart's Law), and \emph{General} (logical consistency, completeness, unstated assumptions).
 
 \paragraph{Authority grounding.}
-Context injected into each step included: cross-project architectural patterns (\texttt{\{\{consolidations\}\}}), mandatory authority documents from the RAG system (\texttt{\{\{axiom\}\}}), accumulated code patterns (\texttt{\{\{project.wisdom\}\}}), and persistent workflow insights from prior IM cycles (\texttt{\{\{memory\}\}}).
+Context injected into each step included cross-project architectural patterns, mandatory authority documents from a retrieval-augmented generation system, accumulated code patterns, and persistent workflow insights from prior review cycles.
 
-\subsection{Claim Extraction (Prepare Step)}
-The Prepare step extracted 6~key claims and 7~implicit assumptions.
-Example claims: ``An automated pipeline using an LLM can reliably derive a structured PersonaProfile from a custom persona's system prompt'' (Claim~5) and ``An LLM is sufficiently capable to act as a reliable judge for scoring another LLM's output against a complex rubric'' (Assumption~1).
+\subsection{Claim Extraction}
+The Prepare step extracted 6~key claims and 7~implicit assumptions from the specification.
+Example claims: ``An automated pipeline using an LLM can reliably derive a structured profile from a custom persona's system prompt'' and ``An LLM is sufficiently capable to act as a reliable judge for scoring another LLM's output against a complex rubric.''
 
 \subsection{Findings}
 
 \paragraph{Cross-model consensus findings.}
 Six findings were independently identified by two or more provider-lens combinations (Table~\ref{tab:pilot-consensus}).
-All six were subsequently validated as genuine vulnerabilities.
 
 \begin{table}[h]
 \centering
@@ -529,41 +484,41 @@ ID & Sev. & Finding & Corroborating lenses \\ \midrule
 CM-01 & BLOCKER & LLM-as-Judge unreliable and gameable (Oracle Fallacy) & Gem/Sec, Gem/Gen, Kimi/Sec, Kimi/Gen, Kimi/Scl \\
 CM-02 & CRIT & Automated profile gen.\ is a systemic attack vector & Gem/Sec, Gem/Scl, Gem/Org, Gem/Gen, Kimi/Sec \\
 CM-03 & CRIT & In-memory cache: catastrophic scaling bottleneck & Gem/Scl, Gem/Gen, Kimi/Scl, Kimi/Org \\
-CM-04 & HIGH & 16$\times$ cost/latency cripples adoption (Goodhart evasion) & Gem/Scl, Gem/Org, Kimi/Gen \\
+CM-04 & HIGH & 16$\times$ cost/latency cripples adoption & Gem/Scl, Gem/Org, Kimi/Gen \\
 CM-05 & HIGH & Granular scoring creates perverse incentives & Gem/Org, Kimi/Org \\
 CM-06 & HIGH & Tailored-only tests create Maginot Line defense & Gem/Gen, Kimi/Gen \\
 \bottomrule
 \end{tabular}
-\caption{Cross-model consensus findings from the Synthesis step. Abbreviations: Gem = Gemini, Scl = Scalability, Sec = Security, Org = Organizational, Gen = General.}
+\caption{Cross-model consensus findings from the Synthesis step.}
 \label{tab:pilot-consensus}
 \end{table}
 
-\paragraph{Unique findings (single-lens).}
-Six additional findings were identified by exactly one provider-lens combination---the highest-value insights from the diverse redundancy approach:
+\paragraph{Unique findings.}
+Six additional findings were identified by exactly one provider-lens combination, representing the highest-value insights from the diverse redundancy approach:
 
 \begin{itemize}
   \item \textbf{UF-01} (CRITICAL, Gem/Sec): \emph{Profile Generation Injection}---a user's system prompt can directly instruct the parser LLM to generate a deliberately weak test suite.
-  The analysis provided a concrete red-team scenario (``The Trojan Persona'') with an example adversarial prompt.
-  \item \textbf{UF-02} (HIGH, Gem/Sec): \emph{Rubric Injection} (``Writing Your Own Report Card'')---a persona's output mimics the judge's rubric language, exploiting sycophantic pattern-matching.
+  \item \textbf{UF-02} (HIGH, Gem/Sec): \emph{Rubric Injection}---a persona's output mimics the judge's rubric language, exploiting sycophantic pattern-matching.
   \item \textbf{UF-03} (HIGH, Kimi/Sec): \emph{Test Case Exhaustion as Oracle Attack}---detailed scoring breakdowns enable iterative reverse-engineering of persona rules.
   \item \textbf{UF-04} (MEDIUM, Kimi/Sec): \emph{Cache Poisoning via Timing Side-Channel}---the 24h TTL creates observable timing differences that leak profile structure.
-  \item \textbf{UF-05} (MEDIUM, Kimi/Org): \emph{Organizational Circuit Breaker}---automatic reversion to generic testing when evaluation overhead exceeds 15\% of development time.
+  \item \textbf{UF-05} (MEDIUM, Kimi/Org): \emph{Organizational Circuit Breaker}---automatic reversion to generic testing when evaluation overhead exceeds a threshold.
   \item \textbf{UF-06} (LOW, Kimi/Sec): \emph{Zero-Knowledge Profile Generation}---cryptographic methods to prevent profile data from existing in readable form.
 \end{itemize}
 
 \paragraph{Philosophical contradiction.}
-The analysis surfaced a fundamental tension between two positions, independently articulated by different providers:
-\emph{Position~A} (Gemini): the \texttt{PersonaProfile}'s explicit structure is a strength; harden the processes around it.
-\emph{Position~B} (Kimi): the profile's machine-readable nature \emph{is} the vulnerability---a \emph{mappa vulnerabilitatum} equally useful to attackers as to defenders; the solution is obfuscation.
-The hardened specification adopted Position~A for the PoC (transparency enables auditability in regulated environments), acknowledging Position~B as a deferred design trade-off.
+The analysis surfaced a fundamental design tension:
+\emph{Position~A} (Gemini): the profile's explicit structure is a strength; harden the processes around it.
+\emph{Position~B} (Kimi): the profile's machine-readable nature \emph{is} the vulnerability; the solution is obfuscation.
+The hardened specification adopted Position~A (transparency enables auditability), acknowledging Position~B as a deferred design trade-off.
+This disagreement was not an analytical failure but one of the most valuable outputs of the protocol---transforming an implicit assumption into an explicit, documented design decision.
 
 \paragraph{Blind spots.}
-The Synthesis step identified four areas not covered by any provider: foundation model baseline shift (model updates silently invalidate historical data), test data provenance, legal liability of the reasoning audit trail, and developer experience of debugging a stochastic judge.
+The Synthesis step identified four areas not covered by any provider: foundation model baseline shift, test data provenance, legal liability of the reasoning audit trail, and developer experience of debugging a stochastic judge.
 
 \paragraph{Arbitration verdict.}
 Adversarial robustness score: \textbf{25/100}.
 Verdict: ``Conceptually sound, implementation fragile.''
-Gate decision: $\mathcal{G}(F) = 0$ (BLOCK).
+Gate decision: $\mathcal{G}(F) = 0$ (\textsc{block}).
 
 \subsection{Hardening Applied}
 
@@ -578,7 +533,7 @@ Aspect & Before (original) & After (hardened) \\ \midrule
 Scoring & LLM judge sole arbiter & Deterministic primary, LLM advisory \\
 Discrepancy & No detection & Flagged when determ./LLM diverge $>$30\,pts \\
 Profile gen. & Fully automated & Human-in-the-loop approval gate \\
-Profile storage & In-memory Map (24h TTL) & DB-persisted with \texttt{status: approved} \\
+Profile storage & In-memory Map (24h TTL) & DB-persisted with approval status \\
 Jailbreak tests & Persona-specific only & Generic (3) + persona-specific (5) \\
 Eval cost & 22 calls (single tier) & Quick ($\sim$10) / Full ($\sim$22) tiered \\
 \bottomrule
@@ -590,95 +545,74 @@ Eval cost & 22 calls (single tier) & Quick ($\sim$10) / Full ($\sim$22) tiered \
 \subsection{Observations}
 \label{sec:pilot-observations}
 
-Four observations from the pilot generalize beyond this artifact:
+Four observations from the pilot generalize beyond this specific artifact:
 
 \begin{enumerate}
   \item \textbf{Design specifications for AI evaluation systems are attack surface declarations.}
   Every interface, pipeline, and caching strategy encodes assumptions that can be exploited.
-  The \texttt{PersonaProfile} interface simultaneously provides a defender's test suite and an attacker's playbook.
 
   \item \textbf{LLM-generated components that constrain other LLM outputs create circular dependencies.}
-  The auto-derivation pipeline collapses the security boundary: the LLM is simultaneously the subject of evaluation and the author of the evaluation criteria.
+  Auto-derivation pipelines collapse the security boundary: the LLM is simultaneously the subject of evaluation and the author of evaluation criteria.
   Human checkpoints break this circularity.
 
-  \item \textbf{Cross-model disagreement reveals fundamental design tensions, not analytical failures.}
-  The transparency-vs-obfuscation contradiction was not a bug in the review but one of its most valuable outputs---transforming an implicit assumption into an explicit, documented design decision.
+  \item \textbf{Cross-model disagreement reveals design tensions, not analytical failures.}
+  The transparency-vs-obfuscation contradiction was one of the protocol's most valuable outputs.
 
   \item \textbf{The protocol's value scales with artifact complexity.}
   At a total cost of \$0.20 and 2.8~minutes of wall-clock time, the analysis surfaced 3~critical (including 1~blocker), 5~high, and 4~medium/low findings---12~in total---that would have required multiple expert reviewers and substantially more time to identify manually.
-  For specifications defining security boundaries or trust models, this cost-benefit ratio is compelling.
 \end{enumerate}
 
 % ================================================================
 \section{Discussion}
 % ================================================================
 
-% [FIX F8: analogy softened]
 \subsection{Institutionalized Contradiction as Systems Primitive}
 The \protshort{} reframes AI reliability as a systems problem rather than a pure model-alignment problem.
 The approach is \emph{inspired by} fault tolerance in distributed systems, where robustness derives from structured checks between components rather than trust in any single component.
-We note, however, that the analogy is structural, not formal: the \protshort{} does not provide Byzantine fault tolerance or provable safety/liveness guarantees.
+The analogy is structural, not formal: the \protshort{} does not provide Byzantine fault tolerance or provable safety/liveness guarantees.
 Its contribution is to make adversarial challenge a mandatory, logged, and enforceable stage of the workflow---turning dissent into infrastructure rather than leaving it dependent on user prompt quality, developer vigilance, or informal red-teaming.
 
-% [FIX F4: correlated model failures as core limitation]
 \subsection{Limitations}
 \label{sec:limitations}
 
 \paragraph{Correlated model failures.}
-If all three roles (Proponent, Ipcha Agent, Auditor) are instantiated on the same foundation model, they share systematic biases, training-data blind spots, and failure modes.
+If all three roles are instantiated on the same foundation model, they share systematic biases, training-data blind spots, and failure modes.
 The protocol \emph{reduces} but does not \emph{eliminate} the risk of correlated failures.
-For example, if a model systematically fails to recognize a class of vulnerabilities (e.g., TOCTOU races), the Ipcha Agent will not construct counter-hypotheses for that class.
-Mitigations include: (i)~model diversification across roles, (ii)~authority grounding with external rule sets that explicitly enumerate known vulnerability classes, and (iii)~periodic human audit of Ipcha Agent coverage.
-The protocol's authority grounding layer (Figure~\ref{fig:architecture}) is specifically designed to address this: mandatory documents (legal, compliance, security standards) serve as external oracles that constrain critique beyond the model's intrinsic knowledge.
+Mitigations include: (i)~model diversification across roles (demonstrated in the pilot with Gemini and Kimi), (ii)~authority grounding with external rule sets that explicitly enumerate known vulnerability classes, and (iii)~periodic human audit of Ipcha Agent coverage.
 
-% [FIX F5: domain-agnostic claim softened]
 \paragraph{Domain generality.}
 \methodname{} is designed with domain-agnostic abstractions (Claim, Evidence, Finding, Gate Rule).
-However, all examples, metrics, and evaluation targets in this paper are drawn from the security and compliance domain.
-Applicability to other domains (e.g., medical guideline review, legal contract analysis, scientific peer review) is plausible given the abstract formal structure but remains an untested hypothesis.
-We explicitly mark domain-agnosticity as a design goal rather than an empirically validated property.
+However, all examples and evaluation targets in this paper are drawn from the security domain.
+Applicability to other domains (medical guideline review, legal contract analysis, scientific peer review) is plausible given the abstract formal structure but remains an untested hypothesis.
 
 \paragraph{Ground-truth cost.}
 Establishing ground truth for finding recall/precision requires expert panels, which are expensive and domain-specific.
 
 \paragraph{Ipcha Score validity.}
-As discussed in Section~\ref{sec:score-limits}, the score is a proxy for epistemic correction with known failure modes.
-It should not be used as a sole evaluation criterion.
+As discussed in Section~\ref{sec:score-limits}, the score is a proxy with known failure modes.
+The pilot backcheck revealed a concrete false-negative case: the v1.0.0$\to$v1.1.0 paper revision resolved 9~findings yet produced $\mathit{IS}=0.099$ (low band), because the changes were additive rather than substitutive.
+This underscores the recommendation to report $\mathit{IS}$ alongside $\mathit{IS}_w$ and finding-level metrics.
 
-\subsection{Reproducibility and Artifact Compliance}
-USENIX Security~2026 requires open artifact sharing at submission; acceptance is tied to continued availability~\cite{usenix_sec26_artifacts,usenix_sec26_cfp}.
-CCS~2026 requires access to artifacts during double-blind review (anonymous URLs/credentials)~\cite{ccs_2026_cfp}.
-The artifact manifest in Appendix~\ref{app:manifest} is designed to satisfy both.
-
-\subsection{IP Constraints (DE/EU/Zenodo/Trade Secrets)}
-Under German law, the state of the art includes everything made publicly available before the relevant date and is novelty-destroying~\cite{patg_par3}.
-The EPC defines novelty accordingly (Art.~54)~\cite{epue_art54}.
-If parts of the approach are to be treated as trade secrets, GeschGehG requires, among other things, secrecy and appropriate protective measures~\cite{geschgehg_par2}.
-Zenodo states that metadata are CC0-licensed and publicly harvestable; metadata are therefore not a suitable repository for secrets~\cite{zenodo_policies}.
-For computer-implemented aspects, note that computer programs ``as such'' are not patentable; however, computer-implemented inventions may be patentable if they solve a technical problem~\cite{dpma_cie}.
-
-\paragraph{IP Note for USENIX~2026.}
-If you wish to preserve DE/EU patent options, ``open artifacts at submission time'' may conflict with ``file before you publish.''
-This tension is one reason the manuscript contains IP sections and redaction strategies~\cite{usenix_sec26_artifacts,patg_par3,epue_art54}.
+\paragraph{Pilot limitations.}
+The pilot case study ($n=1$) demonstrates protocol feasibility but does not constitute controlled evaluation.
+The cost-effectiveness observation (\$0.20 for 12~findings) is compelling but requires comparison against manual expert review on the same artifact.
+Post-hardening re-verification (a second IM~pass on the revised specification) was not performed.
 
 % ================================================================
-\section{Conclusion and Outlook}
+\section{Conclusion}
 % ================================================================
 \methodname{} institutionalizes contradiction as a verification primitive for safety-relevant text artifacts.
-We provide a formal specification, pseudocode with specified subfunctions, the Ipcha Score as a proxy indicator of semantic displacement with documented limitations, an evaluation framework, and an artifact manifest for reproducible research.
-A pilot case study on a production design specification (Persona Evaluation v2) demonstrated the protocol's ability to surface critical vulnerabilities---including injection attacks and circular LLM dependencies---that passed conventional peer review, resulting in concrete architectural hardening (Section~\ref{sec:pilot}).
-We argue that institutionalized contradiction should be treated as a foundational primitive for AI workflows where decisions must survive scrutiny beyond surface-level fluency.
+We provide a formal specification with five definitions, pseudocode with specified subfunctions, and the Ipcha Score as a quantitative proxy for semantic displacement between review phases.
+A pilot case study on a production design specification demonstrated the protocol's ability to surface critical vulnerabilities---including injection attacks and circular LLM dependencies---that passed conventional review, at negligible cost.
+
+We argue that institutionalized contradiction should be treated as a foundational systems primitive for AI workflows where decisions must survive scrutiny beyond surface-level fluency.
 
 Future work includes
-(i)~empirical calibration of the Ipcha Score against human expert ratings (RQ4),
-(ii)~standardized benchmarks across artifact classes,
+(i)~controlled evaluation across artifact classes (RQ1--RQ3),
+(ii)~empirical calibration of the Ipcha Score against human expert ratings (RQ4),
 (iii)~cross-domain validation (medical, legal, scientific review),
-(iv)~robustness analysis against adversarial text inputs,
-(v)~model-diversification strategies to mitigate correlated failures, and
-(vi)~tooling for semi-automated evidence collection.
-
-\section*{Acknowledgments}
-% Add acknowledgments here.
+(iv)~robustness analysis against adversarial text inputs, and
+(v)~model-diversification strategies to mitigate correlated failures.
 
 \section*{Funding}
 No external funding.
@@ -689,6 +623,9 @@ O.~Baer: Conceptualization; Methodology; Software; Validation; Writing (Original
 \section*{Conflict of Interest}
 The author declares no conflict of interest.
 
+\section*{Data Availability}
+The pilot data, reference implementation, and artifact manifest are available at \url{https://github.com/mrwind-up-bird/ipcha-mistabra}.
+
 \bibliographystyle{unsrt}
 \bibliography{references}
 
@@ -696,54 +633,6 @@ The author declares no conflict of interest.
 \appendix
 % ================================================================
 
-\section{Artifact Package (Zenodo-Ready) and File Manifest}
-\label{app:manifest}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{@{}llp{7.0cm}@{}}
-\toprule
-File & Format & Purpose \\ \midrule
-paper\_ipcha\_mistabra\_\version.pdf & PDF & Main paper (citable) \\
-ipcha\_mistabra\_zenodo\_bundle\_\version.zip & ZIP & Release bundle \\
-SHA256SUMS\_\version.txt & TXT & Checksums (integrity) \\
-README.md & MD & Quickstart, citation note (DOI) \\
-REPRODUCIBILITY.md & MD & Reproduction instructions \\
-MANIFEST.json & JSON & Machine-readable TOC/metadata \\
-LICENSE\_DOCS / LICENSE\_CODE & TXT & CC~BY~4.0 / MIT or Apache-2.0 \\
-CITATION.cff & YAML & Citation hints (DOI placeholder) \\
-CHANGELOG.md & MD & SemVer release notes \\
-\bottomrule
-\end{tabular}
-\caption{Artifact manifest (suggested file names; contents: placeholder).}
-\end{table}
-
-\section{Reproducibility: Commands and Packaging}
-
-\subsection*{Dockerfile Skeleton (Placeholder)}
-\begin{verbatim}
-FROM python:3.12-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY src/ ./src/
-COPY run.sh .
-ENTRYPOINT ["bash","./run.sh"]
-\end{verbatim}
-
-\subsection*{Example CLI}
-\begin{verbatim}
-unzip ipcha_mistabra_zenodo_bundle_v1.1.0.zip
-cd ipcha_mistabra_release_v1.1.0/artifacts/tooling
-docker build -t im-tooling:v1.1 .
-docker run --rm -v "$(pwd)/../examples:/data" \
-  im-tooling:v1.1 \
-  --input /data/example_inputs/spec.txt \
-  --context /data/example_inputs/context.json \
-  --output /data/example_outputs/report.json
-\end{verbatim}
-
-% [FIX F6: prompt templates for LLM instantiation]
 \section{Prompt Templates for LLM Instantiation}
 \label{app:prompts}
 
@@ -797,28 +686,6 @@ Rules:
 - Assume the claim is FALSE until proven otherwise.
 - Ground every objection in authority docs or logic.
 - Do NOT generate contrarian noise without substance.
-\end{verbatim}
-
-\section{Zenodo Metadata Snippets}
-
-\subsection*{Title}
-\begin{verbatim}
-Ipcha Mistabra: A General Method for Structured Text
-Review and Security-Oriented Hardening (v1.1.0)
-\end{verbatim}
-
-\subsection*{Description}
-\begin{verbatim}
-Ipcha Mistabra is a verification protocol for structured
-text review that extracts claims and assumptions from text
-artifacts, adversarially challenges them via a mandatory
-contradictor role, and produces evidence-based findings
-with formal gate rules.
-\end{verbatim}
-
-\subsection*{License}
-\begin{verbatim}
-Documents: CC BY 4.0 | Code/Tooling: MIT or Apache-2.0
 \end{verbatim}
 
 \end{document}
