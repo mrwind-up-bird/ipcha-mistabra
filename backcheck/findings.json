@@ -1,0 +1,228 @@
+[
+  {
+    "id": "F001",
+    "claim_id": "C001",
+    "counter_hypothesis": "The claim conflates two distinct failure modes — cognitive confirmation bias in human reviewers and training-induced sycophancy in LLMs — treating them as a unified problem. These require different mitigations; the paper does not distinguish them.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "Evidence that a single mitigation (adversarial contradiction) is effective against both cognitive and training-induced bias."
+    ],
+    "severity": "low",
+    "status": "accepted"
+  },
+  {
+    "id": "F002",
+    "claim_id": "C002",
+    "counter_hypothesis": "The gap claim depends on survey completeness. The v1.1.0 paper now explicitly addresses AutoGen, CrewAI, and LangGraph (Section 2.6), correctly distinguishing orchestration infrastructure from verification semantics. This substantially strengthens the gap claim compared to v1.0.0. However, the survey still lacks a systematic methodology (no PRISMA-style search, no inclusion/exclusion criteria) and may miss emerging systems (e.g., ChatEval, Encouraging Divergent Thinking) that add judge/auditor roles to debate setups.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "Systematic literature search methodology.",
+      "Coverage of post-2024 debate extensions with audit roles."
+    ],
+    "severity": "medium",
+    "status": "accepted"
+  },
+  {
+    "id": "F003",
+    "claim_id": "C003",
+    "counter_hypothesis": "Fagan's inspection meeting is specifically designed for inspectors to raise defects against the author's work, which is structurally adversarial. The 'partial' for mandatory contradiction may understate this. Additionally, Fagan's rework/follow-up phases require the author to demonstrate fixes against the original defect list, which is a weak form of evidence binding.",
+    "authority_violations": [
+      "Fagan 1976, Section II-B: inspection meeting explicitly requires defect identification by inspectors."
+    ],
+    "missing_evidence": [
+      "Detailed mapping of Fagan phases to IM features showing where Fagan falls short."
+    ],
+    "severity": "low",
+    "status": "accepted"
+  },
+  {
+    "id": "F004",
+    "claim_id": "C004",
+    "counter_hypothesis": "CAI is a training methodology, not a runtime architecture. Nothing prevents deploying CAI-trained models in a multi-agent setup. The paper conflates the CAI training procedure with runtime constraints. However, the point that CAI's default mode is self-critique (same instance) is fair.",
+    "authority_violations": [
+      "Bai et al. 2022: CAI describes training, not runtime deployment restrictions."
+    ],
+    "missing_evidence": [],
+    "severity": "low",
+    "status": "accepted"
+  },
+  {
+    "id": "F005",
+    "claim_id": "C005",
+    "counter_hypothesis": "The claim holds against Du et al. specifically but the multi-agent debate paradigm is broader. Subsequent work may have added audit roles and evidence grounding. The paper scopes this to Du et al. with 'typically lack', which is appropriately hedged.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "Survey of post-Du et al. multi-agent debate systems."
+    ],
+    "severity": "low",
+    "status": "accepted"
+  },
+  {
+    "id": "F006",
+    "claim_id": "C006",
+    "counter_hypothesis": "The v1.1.0 paper correctly calls IS a 'proxy indicator of semantic displacement' (not 'measure of epistemic correction' as in v1.0.0). This is an appropriate hedge. However, the Executive Summary (line 61) uses 'proxy indicator of semantic displacement' while the Section 4 title is 'Ipcha Score' without qualification. The score conflates lexical/stylistic variation with substantive correction and has no empirical validation (RQ4 deferred). The self-described limitations are honest but the score remains unvalidated.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "Empirical validation that IS correlates with human-judged correction quality (RQ4 deferred to future work).",
+      "Theoretical justification for why cosine distance in text-embedding-3-large space captures epistemic divergence."
+    ],
+    "severity": "medium",
+    "status": "accepted"
+  },
+  {
+    "id": "F007",
+    "claim_id": "C007",
+    "counter_hypothesis": "The interpretation bands are described as 'preliminary and derived from early pilot observations' but no pilot data for the IS itself is presented. The pilot case study (Section 6) does not report an IS value. The thresholds remain uncalibrated and their presence in Figure 2 may mislead readers into treating them as established.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "IS values computed from the pilot or any other data.",
+      "Sensitivity analysis across artifact types."
+    ],
+    "severity": "medium",
+    "status": "accepted"
+  },
+  {
+    "id": "F008",
+    "claim_id": "C008",
+    "counter_hypothesis": "The failure mode analysis is incomplete. Additional modes include: (1) adversarial gaming — a Proponent could craft output to maximize embedding distance without substance; (2) length sensitivity — longer outputs have more stable centroids, making short critical corrections invisible; (3) language sensitivity — text-embedding-3-large performance varies across languages; (4) domain-specific embedding collapse for highly technical text.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "Analysis of embedding model behavior on domain-specific technical text.",
+      "Length-sensitivity analysis."
+    ],
+    "severity": "low",
+    "status": "accepted"
+  },
+  {
+    "id": "F009",
+    "claim_id": "C009",
+    "counter_hypothesis": "IS_w addresses false negatives but introduces its own problems: (1) requires finding alignment across passes (how are findings matched?), (2) severity weights (critical=4, high=3, medium=2, low=1) are arbitrary, (3) IS_w is unnormalized — its range depends on finding count, making cross-artifact comparison meaningless.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "Normalization strategy for IS_w.",
+      "Justification for severity weight values."
+    ],
+    "severity": "medium",
+    "status": "accepted"
+  },
+  {
+    "id": "F010",
+    "claim_id": "C010",
+    "counter_hypothesis": "The three properties are individually achievable by well-designed workflow orchestrators (LangChain, AutoGen with DAG enforcement). The distinction is one of degree and engineering discipline, not fundamental architecture. The paper should acknowledge the continuum. However, the combination of all three enforced by design (not by configuration) is a defensible differentiator.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "Formal definition of what constitutes a 'protocol' vs. a 'well-structured prompt chain'."
+    ],
+    "severity": "low",
+    "status": "accepted"
+  },
+  {
+    "id": "F011",
+    "claim_id": "C011",
+    "counter_hypothesis": "Domain-agnosticity is appropriately hedged as a 'design goal' in v1.1.0. No further objection.",
+    "authority_violations": [],
+    "missing_evidence": [],
+    "severity": "low",
+    "status": "refuted"
+  },
+  {
+    "id": "F012",
+    "claim_id": "C012",
+    "counter_hypothesis": "The fault-tolerance analogy is appropriately softened ('inspired by', structural not formal) in v1.1.0. No further objection.",
+    "authority_violations": [],
+    "missing_evidence": [],
+    "severity": "low",
+    "status": "refuted"
+  },
+  {
+    "id": "F013",
+    "claim_id": "C013",
+    "counter_hypothesis": "The mitigations are listed but not analyzed for effectiveness or feasibility. Model diversification introduces coordination complexity. Authority grounding only helps for known vulnerability classes. 'Periodic human audit' is unspecified (cadence, scope, cost). However, the pilot case study (Section 6) demonstrates model diversification in practice (Gemini + Kimi), partially validating this mitigation.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "Cost-benefit analysis of model diversification.",
+      "Specification of human audit cadence and scope."
+    ],
+    "severity": "low",
+    "status": "accepted"
+  },
+  {
+    "id": "F014",
+    "claim_id": "C014",
+    "counter_hypothesis": "Verified against pilot data. The pilot data files confirm: (1) the Persona Evaluation v2 spec was a real production artifact; (2) the workflow produced structured outputs across 5 steps; (3) the synthesis step identified 6 cross-model consensus findings and 6 unique findings. The paper's claim of '2 critical and 4 high-severity findings' aligns with the pilot data: CM-01 (BLOCKER), CM-02 (CRIT), CM-03 (CRIT), CM-04 (HIGH), CM-05 (HIGH), CM-06 (HIGH) = 1 blocker + 2 critical + 3 high. The paper says '2 critical' which undercounts — pilot data shows 1 BLOCKER + 2 CRITICAL. Additionally, unique findings include UF-01 (CRITICAL), raising the total criticals to 3.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "Clarification: pilot data shows 1 BLOCKER + 3 CRITICAL + 3 HIGH in consensus+unique findings, not '2 critical and 4 high' as stated in the abstract."
+    ],
+    "severity": "high",
+    "status": "accepted"
+  },
+  {
+    "id": "F015",
+    "claim_id": "C015",
+    "counter_hypothesis": "Verified against pilot data. The summary file confirms: 77,773 tokens, $0.1977 cost, 2.8 min duration, Google (64,139 tokens, $0.1977, 8 calls) and Kimi (13,634 tokens, $0.0000, 4 calls). The paper rounds cost to $0.198 — consistent. Token and call counts match. However, the paper states 'two providers with four analytical lenses each' but only 12 total calls (8 Google + 4 Kimi). If each provider had 4 lenses, we'd expect 8 calls minimum per provider (16 total, or 8 if each lens = 1 call). Kimi only has 4 calls for 4 lenses, which checks out; Google has 8 calls across 5 steps (Prepare + 4 lenses in Adversarial + Synthesis + Arbitration + Results), not 4 lenses with 1 call each. The 12 calls include non-lens steps.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "Breakdown of which calls correspond to which lenses vs. pipeline steps."
+    ],
+    "severity": "low",
+    "status": "accepted"
+  },
+  {
+    "id": "F016",
+    "claim_id": "C016",
+    "counter_hypothesis": "Verified against pilot data. The synthesis file confirms CM-01 through CM-06 with matching severities and corroborating lenses. Cross-model independence is plausible given two different providers (Google Gemini, Moonshot Kimi) with different architectures and training. However, both providers received the same enriched spec in the Adversarial Analysis step, so they share the same framing context. 'Subsequently validated as genuine vulnerabilities' — the validation appears to be the hardening itself (the spec was revised), not an independent external validation.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "Independent validation method beyond 'the spec was revised in response'."
+    ],
+    "severity": "medium",
+    "status": "accepted"
+  },
+  {
+    "id": "F017",
+    "claim_id": "C017",
+    "counter_hypothesis": "Verified against pilot data. The arbitration file confirms adversarial robustness score 25/100 and a BLOCK verdict. The hardening table in the paper (lines 576–588) describes before/after changes. However, whether these changes 'resolve' the findings is asserted but not re-tested. The protocol was not re-run on the hardened spec to verify G(F) = 1 post-hardening.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "Post-hardening re-run of the protocol to verify the gate passes.",
+      "Evidence that a second IM pass on the hardened spec produces G(F) = 1."
+    ],
+    "severity": "medium",
+    "status": "accepted"
+  },
+  {
+    "id": "F018",
+    "claim_id": "C018",
+    "counter_hypothesis": "The IP analysis is directionally correct. PatG §3 and EPC Art. 54 indeed define novelty-destroying public disclosure. Zenodo CC0 metadata point is accurate. The analysis omits grace period provisions and provisional patent strategies but this is peripheral to the paper's main contribution.",
+    "authority_violations": [],
+    "missing_evidence": [],
+    "severity": "low",
+    "status": "accepted"
+  },
+  {
+    "id": "F019",
+    "claim_id": "C019",
+    "counter_hypothesis": "The artifact manifest (Appendix A) contains placeholder files. USENIX Security 2026 requires actual artifacts at submission time. However, the paper now includes a reference implementation (mentioned in CHANGELOG.md) and pilot data, which strengthens the artifact package. The manifest itself is a template, not a deliverable.",
+    "authority_violations": [
+      "USENIX Security 2026 CfA: artifacts required at submission time, not placeholder descriptions."
+    ],
+    "missing_evidence": [
+      "Actual populated artifact bundle."
+    ],
+    "severity": "low",
+    "status": "accepted"
+  },
+  {
+    "id": "F020",
+    "claim_id": "C020",
+    "counter_hypothesis": "The cost-effectiveness claim ($0.20, 2.8 min) is compelling but based on a single pilot. No comparison with actual manual expert review time is provided — the claim that it 'would have required multiple expert reviewers and substantially more time' is asserted without measurement. Additionally, the pilot used a free-tier provider (Kimi at $0.00), which may not reflect realistic production costs. The claim of scaling with complexity is an extrapolation from n=1.",
+    "authority_violations": [],
+    "missing_evidence": [
+      "Comparative data: actual time for manual expert review of the same artifact.",
+      "Multiple pilot runs across different artifact types to support the scaling claim."
+    ],
+    "severity": "medium",
+    "status": "accepted"
+  }
+]

@@ -1,0 +1,241 @@
+[
+  {
+    "id": "C001",
+    "claim": "Text-based reviews (manual or LLM-assisted) remain susceptible to confirmation bias, hallucination, and insufficient self-validation.",
+    "source_location": "Executive Summary, line 57–58",
+    "assumptions": [
+      {
+        "id": "A001",
+        "text": "Confirmation bias in LLM-assisted reviews is empirically demonstrated, not merely theoretical."
+      },
+      {
+        "id": "A002",
+        "text": "The susceptibility applies broadly across review domains, not only to specific task types."
+      }
+    ]
+  },
+  {
+    "id": "C002",
+    "claim": "None of the existing approaches (formal inspections, Constitutional AI, multi-agent debate) combine all four features in a single implementable protocol: (i) atomic claim extraction, (ii) mandatory adversarial contradiction, (iii) evidence binding, (iv) formal gate rule.",
+    "source_location": "Section 1.1 Research Gap, lines 113–121; Table 1",
+    "assumptions": [
+      {
+        "id": "A003",
+        "text": "The four features are the correct and exhaustive set of distinguishing features."
+      },
+      {
+        "id": "A004",
+        "text": "The related-work survey is comprehensive enough to support a gap claim."
+      }
+    ]
+  },
+  {
+    "id": "C003",
+    "claim": "Table 1 correctly characterizes Fagan inspection as having role separation and runtime operation, partial mandatory contradiction, but lacking evidence binding, auditable finding artifacts, formal gate rule, and authority grounding.",
+    "source_location": "Table 1, lines 184–203",
+    "assumptions": [
+      {
+        "id": "A005",
+        "text": "Fagan's moderator role and rework/follow-up phases do not constitute evidence binding or formal gating."
+      }
+    ]
+  },
+  {
+    "id": "C004",
+    "claim": "Constitutional AI is a single-model approach that does not structurally prevent correlated blind spots, lacks auditable persistent finding artifacts, and has no formal gate mechanism.",
+    "source_location": "Section 2.4, lines 153–157",
+    "assumptions": [
+      {
+        "id": "A006",
+        "text": "CAI as described in Bai et al. 2022 cannot be extended to multi-model deployment to overcome these limitations."
+      }
+    ]
+  },
+  {
+    "id": "C005",
+    "claim": "Multi-agent debate (Du et al.) lacks an explicit audit role, evidence binding against external sources, and a formal severity-based gate.",
+    "source_location": "Section 2.5, lines 159–162",
+    "assumptions": [
+      {
+        "id": "A007",
+        "text": "The multi-agent debate paradigm has not been extended by subsequent work to include these features."
+      }
+    ]
+  },
+  {
+    "id": "C006",
+    "claim": "Multi-agent orchestration frameworks (AutoGen, CrewAI, LangGraph) are complementary infrastructure layers that do not prescribe contradiction, audit, or gating semantics.",
+    "source_location": "Section 2.6, lines 164–169",
+    "assumptions": [
+      {
+        "id": "A008",
+        "text": "No existing configuration or template in these frameworks implements all four IM features out of the box."
+      }
+    ]
+  },
+  {
+    "id": "C007",
+    "claim": "The Ipcha Score IS = 1 − cos(embed(Ap), embed(Af)) is a valid proxy indicator of semantic displacement between Proponent and Auditor outputs.",
+    "source_location": "Section 4, Equation 1, lines 358–370",
+    "assumptions": [
+      {
+        "id": "A009",
+        "text": "Cosine distance in embedding space is a meaningful proxy for semantic divergence in review quality assessment."
+      },
+      {
+        "id": "A010",
+        "text": "text-embedding-3-large captures review-relevant semantic differences faithfully."
+      }
+    ]
+  },
+  {
+    "id": "C008",
+    "claim": "Low IS (< 0.15) indicates robust original or weak critique; mid-range (0.15–0.45) indicates normal dialectical refinement; high IS (> 0.45) indicates substantial correction pressure. Thresholds are preliminary from early pilot observations.",
+    "source_location": "Section 4, lines 377–384",
+    "assumptions": [
+      {
+        "id": "A011",
+        "text": "The threshold values have some empirical basis from pilot observations."
+      },
+      {
+        "id": "A012",
+        "text": "The bands are reasonably stable across different artifact types."
+      }
+    ]
+  },
+  {
+    "id": "C009",
+    "claim": "The IS has two known failure modes: false positive (high score, low correction from paraphrasing) and false negative (low score, high correction from single critical change). IS_w mitigates the false-negative mode.",
+    "source_location": "Section 4, lines 386–395",
+    "assumptions": [
+      {
+        "id": "A013",
+        "text": "These are the most significant failure modes; no other critical failure modes exist."
+      }
+    ]
+  },
+  {
+    "id": "C010",
+    "claim": "Three structural properties distinguish IM from prompt chains: mandatory execution, persistent auditable artifacts, and formal gate mechanism.",
+    "source_location": "Section 3.3, lines 241–250",
+    "assumptions": [
+      {
+        "id": "A014",
+        "text": "These properties cannot be trivially replicated by well-configured prompt chain frameworks."
+      }
+    ]
+  },
+  {
+    "id": "C011",
+    "claim": "IM is designed with domain-agnostic abstractions (Claim, Evidence, Finding, Gate Rule); domain-agnosticity is a design goal, not yet empirically validated.",
+    "source_location": "Section 6.2, lines 635–639; Table 1 footnote",
+    "assumptions": [
+      {
+        "id": "A015",
+        "text": "Abstract formal structures are sufficient for domain portability without domain-specific prompt/authority customization."
+      }
+    ]
+  },
+  {
+    "id": "C012",
+    "claim": "The IM approach is inspired by fault tolerance in distributed systems; the analogy is structural, not formal — IM does not provide BFT or provable safety/liveness guarantees.",
+    "source_location": "Section 6.1, lines 617–621",
+    "assumptions": []
+  },
+  {
+    "id": "C013",
+    "claim": "Correlated model failures are a core limitation when all roles share a foundation model. Mitigations include model diversification, authority grounding, and periodic human audit.",
+    "source_location": "Section 6.2, lines 627–632",
+    "assumptions": [
+      {
+        "id": "A016",
+        "text": "Authority grounding with external rule sets effectively compensates for shared model blind spots."
+      }
+    ]
+  },
+  {
+    "id": "C014",
+    "claim": "The pilot case study applied IM to a production design specification (Persona Evaluation v2) and surfaced 2 critical and 4 high-severity findings that were subsequently resolved.",
+    "source_location": "Section 6, lines 469–476; Abstract line 82",
+    "assumptions": [
+      {
+        "id": "A017",
+        "text": "The pilot data accurately represents a genuine protocol application, not a cherry-picked or retroactively constructed example."
+      }
+    ]
+  },
+  {
+    "id": "C015",
+    "claim": "The pilot workflow used two providers (Gemini, Kimi) with four analytical lenses each, consuming 77,773 tokens at $0.198 total cost in 2.8 minutes.",
+    "source_location": "Section 6, Table (lines 492–505); pilot-data summary",
+    "assumptions": [
+      {
+        "id": "A018",
+        "text": "The reported metrics are accurate and reproducible."
+      }
+    ]
+  },
+  {
+    "id": "C016",
+    "claim": "Cross-model consensus findings (CM-01 through CM-06) were independently identified by two or more provider-lens combinations and all six were subsequently validated as genuine vulnerabilities.",
+    "source_location": "Section 6, Table (lines 523–539)",
+    "assumptions": [
+      {
+        "id": "A019",
+        "text": "Independence of provider-lens combinations is genuine (no shared context leaking between lenses)."
+      },
+      {
+        "id": "A020",
+        "text": "'Validated as genuine vulnerabilities' implies an independent validation step beyond the protocol itself."
+      }
+    ]
+  },
+  {
+    "id": "C017",
+    "claim": "The pilot gate decision was G(F) = 0 (BLOCK), with an adversarial robustness score of 25/100. All critical and high findings were resolved in the specification revision.",
+    "source_location": "Section 6, lines 564–588",
+    "assumptions": [
+      {
+        "id": "A021",
+        "text": "The hardening changes (Table, lines 576–588) genuinely resolve the identified vulnerabilities rather than merely addressing their surface manifestations."
+      }
+    ]
+  },
+  {
+    "id": "C018",
+    "claim": "Under German patent law (PatG §3) and EPC Art. 54, public availability is novelty-destroying. Zenodo metadata is CC0-licensed and unsuitable for trade secrets.",
+    "source_location": "Section 6.4, lines 653–658",
+    "assumptions": [
+      {
+        "id": "A022",
+        "text": "The IP analysis correctly applies to academic preprint publication contexts."
+      }
+    ]
+  },
+  {
+    "id": "C019",
+    "claim": "The paper contains a Zenodo-ready artifact manifest satisfying USENIX Security 2026 and ACM CCS 2026 artifact requirements.",
+    "source_location": "Section 6.3, Appendix A",
+    "assumptions": [
+      {
+        "id": "A023",
+        "text": "A manifest of placeholder files constitutes readiness for venue requirements."
+      }
+    ]
+  },
+  {
+    "id": "C020",
+    "claim": "The protocol's value scales with artifact complexity: at $0.20 and 2.8 minutes, it surfaced findings that would have required multiple expert reviewers and substantially more time manually.",
+    "source_location": "Section 6 Observations, line 607–609",
+    "assumptions": [
+      {
+        "id": "A024",
+        "text": "The comparison with manual expert review time is reasonable, not just asserted."
+      },
+      {
+        "id": "A025",
+        "text": "A single pilot is sufficient to support a scaling claim."
+      }
+    ]
+  }
+]

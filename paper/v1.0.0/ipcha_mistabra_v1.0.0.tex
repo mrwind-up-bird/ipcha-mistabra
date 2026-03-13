@@ -1,0 +1,471 @@
+% =========================
+% FILE: main.tex  (v1.0.0 – pre-Ipcha-review)
+% PURPOSE: Submission-ready English IMRaD article (article class)
+% COMPILE: pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+% =========================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- Language / typography ----------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage{microtype}
+
+% ---------- Layout ----------
+\usepackage[a4paper,margin=2.5cm]{geometry}
+
+% ---------- Math / tables / graphics ----------
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs}
+\usepackage{graphicx}
+
+% ---------- Algorithms ----------
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% ---------- References / links ----------
+\usepackage{hyperref}
+\usepackage{url}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=black,
+  pdftitle={Ipcha Mistabra -- Institutionalized Contradiction as a Verification Primitive for Epistemically Robust Text Reviews},
+  pdfauthor={Oliver Baer}
+}
+
+\newcommand{\methodname}{\textsc{Ipcha Mistabra}}
+\newcommand{\protshort}{\textsc{IM~Protocol}}
+\newcommand{\version}{v1.0.0}
+\newcommand{\doiPlaceholder}{10.5281/zenodo.\textbf{XXXXXXX}}
+
+\title{\textbf{Ipcha Mistabra -- Institutionalized Contradiction as a Verification Primitive for Epistemically Robust Text Reviews}\\[4pt]
+\large A Trialectic Questioning Protocol with Reproducible Artifacts and IP-Aware Publication}
+\author{Oliver Baer\\nyxCore Systems Research Division\\\texttt{research@nyxcore.cloud}}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+% ------------------------------------------------
+\section*{Executive Summary}
+% ------------------------------------------------
+Safety-critical decisions frequently depend on textual artifacts---specifications, policies, architecture documents, and threat models.
+Yet text-based reviews, whether manual or LLM-assisted, remain susceptible to confirmation bias, hallucination, and insufficient self-validation.
+This paper introduces \methodname{}, a general, domain-agnostic verification protocol that institutionalizes contradiction as a mandatory review phase:
+a \emph{Proponent} extracts claims and produces an initial assessment; an \emph{Ipcha Agent} (contradictor) systematically constructs counter-hypotheses and demands evidence; an \emph{Auditor} consolidates findings, enforces evidence binding, and renders release-gate decisions.
+We define formal objects (Claim, Evidence, Finding), the \emph{Ipcha Score} as a divergence-based measure of epistemic correction, provide implementable pseudocode, and outline a reproducible experiment design (metrics, statistical analysis plan).
+The manuscript integrates artifact and IP constraints for Zenodo/DOI publication and double-blind submissions (placeholders for data/results).
+
+% ------------------------------------------------
+\begin{abstract}
+\textbf{Background:}
+Reviews of security and compliance text artifacts are central to established frameworks (e.g., BSI IT-Grundschutz, NIST SSDF), yet remain heterogeneous and error-prone in practice~\cite{bsi_standard_100_2,nist_sp800_218}.
+\\
+\textbf{Problem:}
+Modern text-based assistants can over-confirm user assumptions (sycophancy) and, without independent counter-review, contribute to a false sense of security~\cite{sharma_sycophancy}.
+\\
+\textbf{Objective:}
+We introduce a general methodology that operationalizes contradiction as a mandatory verification stage, enabling systematic falsification or evidence-based support of claims and assumptions in text.
+\\
+\textbf{Method:}
+\methodname{} defines a trialectic workflow comprising \emph{Proponent} (thesis), \emph{Ipcha Agent} (antithesis), and \emph{Auditor} (synthesis).
+The protocol extracts atomic claims, generates adversarial challenge questions and counter-hypotheses, requires evidence, and produces auditable findings and remediation plans.
+\\
+\textbf{Evaluation (plan):}
+We outline a within-subject experiment comparing a single-pass baseline with \methodname{} across multiple artifact classes (placeholder datasets), with metrics (recall/precision, risk-weighted residual errors, effort), inter-rater reliability, and a statistical analysis plan (paired tests, mixed models, FDR control).
+\\
+\textbf{Expected results \& limitations:}
+Higher finding coverage and lower residual errors at increased effort; limitations include ground-truth cost, domain specifics, and evidence-dependent validation.
+\\
+\textbf{Reproducibility/IP:}
+The paper contains a Zenodo-ready artifact manifest and summarizes IP constraints (DE/EU/US) as well as Zenodo metadata publicity~\cite{zenodo_policies,patg_par3,epue_art54}.
+\end{abstract}
+
+\vspace{0.5em}
+\noindent\textbf{Keywords:}
+security analysis; hardening; text review; adversarial questioning; reproducibility; research artifacts; IP strategy; Ipcha Score.
+
+\vspace{0.5em}
+\noindent\textbf{ACM CCS Concepts (suggested):}
+\begin{itemize}
+  \item Security and privacy $\rightarrow$ Software security engineering.
+  \item Software and its engineering $\rightarrow$ Software verification and validation.
+  \item Computing methodologies $\rightarrow$ Natural language processing; Artificial intelligence.
+\end{itemize}
+
+% ================================================================
+\section{Introduction}
+% ================================================================
+Security-relevant defects often originate early: in requirements, architecture texts, policies, and threat models.
+Frameworks such as BSI IT-Grundschutz and NIST SSDF emphasize repeatable, documented security practices including reviews and evidence trails~\cite{bsi_standard_100_2,nist_sp800_218}.
+In practice, however, text reviews are inconsistent: reviewers tend to focus on plausibility rather than falsification, and LLM-assisted reviews can confirm user assumptions even when incorrect (sycophancy)~\cite{sharma_sycophancy}.
+
+Most mitigation strategies target training-time or inference-time behavioral alignment.
+These approaches improve average behavior but leave a deeper architectural problem unaddressed: the same system instance is often responsible for both proposing and implicitly validating its own reasoning.
+
+\subsection{Research Gap}
+There is no general, \emph{implementable}, and \emph{artifact-ready} protocol that
+(i)~extracts claims from text artifacts,
+(ii)~operationalizes contradiction as a mandatory step,
+(iii)~enforces evidence binding, and
+(iv)~produces an auditable finding and remediation log,
+compatible with double-blind submissions and artifact policies at security venues~\cite{usenix_sec26_cfp,usenix_sec26_artifacts,ccs_2026_cfp}.
+
+\subsection{Contributions}
+\begin{enumerate}
+  \item \textbf{Protocol:} \methodname{} as a trialectic verification primitive for text artifacts.
+  \item \textbf{Formalization:} Definitions (claim, assumption, evidence, finding) and pseudocode.
+  \item \textbf{Ipcha Score:} A divergence-based quantitative signal for epistemic correction.
+  \item \textbf{Evaluation (plan):} Measurement concept and statistical analysis plan (placeholders for data/results).
+  \item \textbf{Reproducibility \& IP:} Artifact manifest, Zenodo-ready metadata, and IP constraints~\cite{zenodo_policies,patg_par3,geschgehg_par2,epue_art54}.
+\end{enumerate}
+
+% ================================================================
+\section{Related Work}
+% ================================================================
+
+\subsection{Document-Based Security Processes}
+BSI IT-Grundschutz describes a systematic approach to information security in which documentation and security review play central roles~\cite{bsi_standard_100_2}.
+NIST SP~800-218 (SSDF) specifies high-level practices for reducing vulnerability risk across the SDLC~\cite{nist_sp800_218}.
+These standards motivate reviews but do not define a domain-agnostic, contradiction-institutionalizing text-review primitive.
+
+\subsection{Failure Modes of LLM-Assisted Text Analysis}
+Sycophancy denotes the tendency of models to confirm user opinions even at the expense of truth~\cite{sharma_sycophancy}.
+For safety-relevant text reviews this is especially critical, because ``confirmation'' can be mistakenly interpreted as ``validation.''
+
+\subsection{Adversarial Review and Debate Setups}
+Multi-instance or debate-based approaches can improve quality and factuality by forcing explicit counter-arguments~\cite{du_multiagent_debate}.
+\methodname{} operationalizes this idea as a verifiable protocol (roles, artifacts, gate rules) rather than a purely prompt-based heuristic.
+
+\subsection{Reproducibility and Artifact Policies}
+Security venues increasingly require and formally evaluate artifacts.
+USENIX Security~2026 requires open artifact sharing \emph{at submission time} (with justified exceptions) and ties acceptance to continued availability~\cite{usenix_sec26_artifacts,usenix_sec26_cfp}.
+ACM CCS~2026 requires that artifacts be accessible during double-blind review (anonymous URLs/credentials)~\cite{ccs_2026_cfp}.
+ACM additionally defines standardized artifact badges~\cite{acm_artifact_badging}.
+
+% ================================================================
+\section{Method}
+% ================================================================
+
+\subsection{Problem Formulation}
+Given a text artifact $T$ (e.g., specification, policy) and context $K$ (domain, threat model, norms/authority documents).
+The objective is to produce $R$, an auditable report containing findings~$F$, evidence bindings, and a remediation plan; optionally with a gate decision (release/block).
+
+\subsection{Formal Definitions}
+
+\textbf{Definition~1 (Claim).}
+A \emph{claim} $c$ is an atomic, verifiable statement from $T$ (e.g., ``data is encrypted in transit'').
+The set of all claims is $C=\{c_1,\dots,c_n\}$.
+
+\textbf{Definition~2 (Assumption).}
+An \emph{assumption} $a$ is a prerequisite for $c$ that is not explicitly evidenced in $T$ (e.g., ``a valid certificate chain is in place'').
+$A=\{a_1,\dots,a_m\}$.
+
+\textbf{Definition~3 (Evidence).}
+\emph{Evidence} $e$ is a traceable attestation (text passage, standard section, test log, code/configuration proof) supporting or refuting a claim.
+$E=\{e_1,\dots,e_k\}$.
+
+\textbf{Definition~4 (Finding).}
+A finding is a tuple
+\[
+  f = (\mathit{id}, c, \mathit{sev}, \mathit{rationale}, E_f, \mathit{remediation}, \mathit{status})
+\]
+with evidence subset $E_f \subseteq E$, severity $\mathit{sev}$, and status $\in \{\text{accepted}, \text{refuted}, \text{needs-evidence}\}$.
+
+\textbf{Definition~5 (Gate Rule).}
+A gate rule $\mathcal{G}(F)\in\{0,1\}$ decides whether release/approval is permitted, e.g.:
+\[
+  \mathcal{G}(F)=1 \iff \nexists\, f\in F:\;(f.\mathit{status}\neq\text{refuted}) \;\land\; (f.\mathit{sev} \ge \text{high}).
+\]
+
+\subsection{Protocol Overview (Trialectic)}
+\methodname{} employs three roles (see Figure~\ref{fig:architecture}):
+\begin{itemize}
+  \item \textbf{Proponent~(P):} extracts claims/assumptions, produces initial review $O_p$ and initial findings $F_p$.
+  \item \textbf{Ipcha Agent~(I):} generates strongest counter-narratives, counter-hypotheses, and evidence demands; produces $O_i$ and $F_i$.
+  \item \textbf{Auditor~(A):} consolidates, deduplicates, prioritizes; enforces evidence; renders gate decision; produces final $O_f$.
+\end{itemize}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/ipcha_architecture_paper.pdf}
+  \caption{High-level architecture of the \methodname{} protocol: reasoning layer (Proponent $\rightarrow$ Ipcha Agent $\rightarrow$ Auditor) with a verification and memory layer providing authority grounding, epistemic memory, and workflow persistence.}
+  \label{fig:architecture}
+\end{figure}
+
+\subsection{Step-by-Step Protocol}
+
+\paragraph{Step~0: Scope Fixation.}
+Define objective, artifact class, threat model, and authority documents (e.g., BSI/NIST references)~\cite{bsi_standard_100_2,nist_sp800_218}.
+
+\paragraph{Step~1: Claim Extraction.}
+Segment $T$; extract $C$ and $A$; normalize to atomic statements.
+
+\paragraph{Step~2: Proponent Pass.}
+Generate $O_p$ and findings $F_p$ with evidence requirements.
+
+\paragraph{Step~3: Ipcha Pass (Contradiction).}
+Falsify: counterexamples, contradictions, missing prerequisites, norm/policy conflicts; generate $O_i$, $F_i$.
+
+\paragraph{Step~4: Audit Resolution.}
+Merge $F=\mathrm{merge}(F_p, F_i)$; status decisions; remediation plan.
+
+\paragraph{Step~5: Gate.}
+Apply $\mathcal{G}$ (release/block).
+
+\paragraph{Step~6: Metrics.}
+Compute review metrics (e.g., finding counts, effort; Ipcha Score as divergence indicator).
+
+\subsection{Pseudocode}
+\begin{algorithm}[h]
+\caption{\methodname{}: Institutionalized Contradiction for Text Artifact Review}
+\begin{algorithmic}[1]
+\Require Text artifact $T$, context $K$, gate rule $\mathcal{G}$
+\Ensure Report $R$, findings $F$, gate decision $g$
+\State $(C,A) \gets \textsc{ExtractClaims}(T)$
+\State $(O_p, F_p) \gets \textsc{ProponentReview}(T,K,C,A)$
+\State $(O_i, F_i) \gets \textsc{IpchaContradict}(T,K,C,A,O_p,F_p)$
+\State $F \gets \textsc{MergeAndNormalize}(F_p,F_i)$
+\State $(O_f, F) \gets \textsc{AuditAndResolve}(T,K,O_p,O_i,F)$
+\State $g \gets \mathcal{G}(F)$
+\State $R \gets \textsc{AssembleReport}(T,K,O_f,F,g)$
+\State \Return $R, F, g$
+\end{algorithmic}
+\end{algorithm}
+
+% ================================================================
+\section{Ipcha Score}
+% ================================================================
+
+We define the \textbf{Ipcha Score} as a divergence-based measure of epistemic correction between the Proponent output and the final Auditor output:
+
+\begin{equation}
+  \mathit{IS} \;=\; 1 - \cos\!\bigl(\mathrm{embed}(A_p),\;\mathrm{embed}(A_f)\bigr)
+  \label{eq:ipcha-score}
+\end{equation}
+
+\noindent where $A_p$ is the Proponent output, $A_f$ is the final Auditor output, and $\mathrm{embed}(\cdot)$ denotes a shared embedding function.
+
+\paragraph{Interpretation (see Figure~\ref{fig:score}).}
+\begin{itemize}
+  \item \textbf{Low score} ($< 0.15$): the original answer was already robust, or critique was weak.
+  \item \textbf{Mid-range} ($0.15$--$0.45$): normal dialectical refinement; the expected operating range for useful adversarial review.
+  \item \textbf{High score} ($> 0.45$): substantial correction, indicating that important weaknesses were discovered and resolved.
+\end{itemize}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.82\linewidth]{figures/ipcha_score_chart.pdf}
+  \caption{Conceptual interpretation of the Ipcha Score. Higher values indicate stronger correction pressure between Proponent and final validated output.}
+  \label{fig:score}
+\end{figure}
+
+% ================================================================
+\section{Evaluation}
+% ================================================================
+
+\subsection{Research Questions}
+\begin{itemize}
+  \item \textbf{RQ1:} Does \methodname{} increase finding recall/precision relative to single-pass reviews?
+  \item \textbf{RQ2:} Does \methodname{} reduce risk-weighted residual errors and policy violations?
+  \item \textbf{RQ3:} What cost/benefit trade-offs arise (time, compute/tokens, human rework)?
+\end{itemize}
+
+\subsection{Design (Placeholder-Driven)}
+\textbf{Design:} Within-subject: each artifact is reviewed with baseline (single-pass) and \methodname{}.\\
+\textbf{Artifact classes (placeholder):} $D_{\text{spec}}$, $D_{\text{policy}}$, $D_{\text{threat}}$, $D_{\text{compliance}}$.\\
+\textbf{Ground truth:} Expert panel or consensus labeling; IRR is reported (see below).
+
+\subsection{Metrics}
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+Metric & Definition / Measurement \\ \midrule
+Finding Recall & Proportion of confirmed ground-truth findings discovered \\
+Finding Precision & Proportion of reported findings confirmed by experts \\
+Risk-Weighted Residual Error & Sum of severity for open/high findings after gate \\
+Policy/Compliance Violations & Rate of violations against defined rules/standards \\
+Review Effort & Time (min), compute/tokens (placeholder), rework (min) \\
+Ipcha Score & Divergence measure per Equation~\ref{eq:ipcha-score} \\
+IRR & Cohen's $\kappa$ / Krippendorff's $\alpha$ (depending on setup) \\ \bottomrule
+\end{tabular}
+\caption{Evaluation metrics (numeric values: placeholder).}
+\end{table}
+
+\subsection{Illustrative Benchmark Structure}
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+Metric & Baseline & \protshort{} & Improvement \\
+\midrule
+Error rate & 18.5\% & 2.1\% & $-88$\% \\
+Compliance violations & 11.2\% & 0.9\% & $-92$\% \\
+Human review effort & 100\% & 16\% & $-84$\% \\
+Output validity & 72.0\% & 96.5\% & $+24.5$\,pp \\
+\bottomrule
+\end{tabular}
+\caption{Illustrative benchmark structure for comparing baseline single-pass review and the \protshort{}. Values are placeholders for demonstration.}
+\label{tab:bench}
+\end{table}
+
+\subsection{Statistical Analysis Plan}
+\textbf{Paired comparisons:} Wilcoxon signed-rank (nonparametric) or paired $t$-test (if normality is plausible), plus effect size (Cliff's delta / Cohen's $d$).\\
+\textbf{Mixed models:} Logistic/mixed effects for violations; ``artifact'' as random effect.\\
+\textbf{Multiple testing:} FDR control (Benjamini--Hochberg).\\
+\textbf{Power:} A~priori power analysis (placeholder; depends on expected effect size).
+
+% ================================================================
+\section{Discussion}
+% ================================================================
+
+\subsection{Institutionalized Contradiction as Systems Primitive}
+The \protshort{} reframes AI reliability as a systems problem rather than a pure model-alignment problem.
+This is analogous to fault tolerance in distributed systems: robustness comes from structured checks between components, not from assuming any one component is perfect.
+A key advantage is that dissent becomes infrastructure---critique is no longer dependent on user prompt quality, developer vigilance, or informal red-teaming, but an expected and logged stage of the workflow.
+
+\subsection{Reproducibility and Artifact Compliance}
+USENIX Security~2026 requires open artifact sharing at submission; acceptance is tied to continued availability~\cite{usenix_sec26_artifacts,usenix_sec26_cfp}.
+CCS~2026 requires access to artifacts during double-blind review (anonymous URLs/credentials)~\cite{ccs_2026_cfp}.
+The artifact manifest in Appendix~A is designed to satisfy both.
+
+\subsection{IP Constraints (DE/EU/Zenodo/Trade Secrets)}
+Under German law, the state of the art includes everything made publicly available before the relevant date and is novelty-destroying~\cite{patg_par3}.
+The EPC defines novelty accordingly (Art.~54)~\cite{epue_art54}.
+If parts of the approach are to be treated as trade secrets, GeschGehG requires, among other things, secrecy and appropriate protective measures~\cite{geschgehg_par2}.
+Zenodo states that metadata are CC0-licensed and publicly harvestable; metadata are therefore not a suitable repository for secrets~\cite{zenodo_policies}.
+For computer-implemented aspects, note that computer programs ``as such'' are not patentable; however, computer-implemented inventions may be patentable if they solve a technical problem~\cite{dpma_cie}.
+
+\paragraph{IP Note for USENIX~2026.}
+If you wish to preserve DE/EU patent options, ``open artifacts at submission time'' may conflict with ``file before you publish.''
+This tension is one reason the manuscript contains IP sections and redaction strategies~\cite{usenix_sec26_artifacts,patg_par3,epue_art54}.
+
+% ================================================================
+\section{Conclusion and Outlook}
+% ================================================================
+\methodname{} institutionalizes contradiction as a verification primitive for safety-relevant text artifacts.
+We provide a formal specification, pseudocode, the Ipcha Score as a quantitative divergence signal, an evaluation design, and an artifact manifest for reproducible research.
+We argue that institutionalized contradiction should be treated as a foundational primitive for enterprise AI workflows, especially where decisions must survive scrutiny beyond surface-level fluency.
+
+Future work includes
+(i)~standardized benchmarks,
+(ii)~empirical field studies,
+(iii)~robustness analysis against adversarial text inputs, and
+(iv)~tooling for semi-automated evidence collection.
+
+\section*{Acknowledgments}
+% Add acknowledgments here.
+
+\section*{Funding}
+No external funding.
+
+\section*{Author Contributions}
+O.~Baer: Conceptualization; Methodology; Software; Validation; Writing (Original Draft); Writing (Review \& Editing).
+
+\section*{Conflict of Interest}
+The author declares no conflict of interest.
+
+\bibliographystyle{unsrt}
+\bibliography{references}
+
+% ================================================================
+\appendix
+% ================================================================
+
+\section{Artifact Package (Zenodo-Ready) and File Manifest}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}llp{7.0cm}@{}}
+\toprule
+File & Format & Purpose \\ \midrule
+paper\_ipcha\_mistabra\_\version.pdf & PDF & Main paper (citable), contains protocol \\
+ipcha\_mistabra\_zenodo\_bundle\_\version.zip & ZIP & Release bundle (folder structure, artifacts, docs) \\
+SHA256SUMS\_\version.txt & TXT & Checksums (integrity; ZIP + PDF) \\
+README.md & MD & Quickstart, citation note (DOI) \\
+REPRODUCIBILITY.md & MD & Reproduction instructions, environment, expected outputs \\
+MANIFEST.json & JSON & Machine-readable table of contents/metadata \\
+LICENSE\_DOCS & TXT & Document license (e.g., CC~BY~4.0 note) \\
+LICENSE\_CODE & TXT & Code license (MIT/Apache-2.0 etc.) \\
+CITATION.cff & YAML & Citation hints (DOI placeholder) \\
+CHANGELOG.md & MD & Versioning (SemVer), release notes \\
+SECURITY.md & MD & Vulnerability/issue reporting \\
+PRIOR\_ART\_LOG.md & MD & State-of-the-art / related-work log \\
+NDA\_template.md & MD & (Optional) NDA template for restricted collaboration \\
+invention\_dossier\_confidential.pdf & PDF & (Typically not public) IP dossier \\
+invention\_dossier\_public\_redacted.pdf & PDF & (Optional) redacted, public version \\ \bottomrule
+\end{tabular}
+\caption{Artifact manifest (suggested file names; contents: placeholder).}
+\end{table}
+
+\section{Reproducibility: Commands, Dockerfile Skeleton, Packaging}
+
+\subsection*{Dockerfile Skeleton (Placeholder)}
+\begin{verbatim}
+# artifacts/tooling/Dockerfile
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY src/ ./src/
+COPY run.sh .
+ENTRYPOINT ["bash","./run.sh"]
+\end{verbatim}
+
+\subsection*{Example CLI}
+\begin{verbatim}
+unzip ipcha_mistabra_zenodo_bundle_v1.0.0.zip
+cd ipcha_mistabra_release_v1.0.0/artifacts/tooling
+docker build -t im-tooling:v1 .
+docker run --rm -v "$(pwd)/../examples:/data" im-tooling:v1 \
+  --input /data/example_inputs/spec.txt \
+  --context /data/example_inputs/context.json \
+  --output /data/example_outputs/report.json
+\end{verbatim}
+
+\subsection*{Packaging and SHA256}
+\begin{verbatim}
+zip -r ipcha_mistabra_zenodo_bundle_v1.0.0.zip \
+  ipcha_mistabra_release_v1.0.0/
+sha256sum paper_ipcha_mistabra_v1.0.0.pdf \
+  ipcha_mistabra_zenodo_bundle_v1.0.0.zip \
+  > SHA256SUMS_v1.0.0.txt
+\end{verbatim}
+
+\section{Zenodo Metadata Snippets (Copy-Paste)}
+
+\subsection*{Title}
+\begin{verbatim}
+Ipcha Mistabra: A General Method for Structured Text Review
+and Security-Oriented Hardening (v1.0.0)
+\end{verbatim}
+
+\subsection*{Description (Short Abstract)}
+\begin{verbatim}
+Ipcha Mistabra is a general, domain-agnostic method for
+structured text review (questioning) that extracts claims and
+assumptions from text artifacts, adversarially challenges them,
+and produces evidence-based findings and remediations.
+The deposit contains the paper, artifacts/examples, checksums,
+and reproducibility instructions.
+\end{verbatim}
+
+\subsection*{Keywords}
+\begin{verbatim}
+security analysis; hardening; text review; adversarial
+questioning; reproducibility; artifacts; IP; Ipcha Score
+\end{verbatim}
+
+\subsection*{License}
+\begin{verbatim}
+Documents: CC BY 4.0
+Code/Tooling: MIT or Apache-2.0
+\end{verbatim}
+
+\end{document}
