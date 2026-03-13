@@ -1,0 +1,59 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ipcha-mistabra"
+version = "1.1.0"
+description = "Institutionalized Contradiction as a Verification Primitive for Epistemically Robust Text Reviews"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [
+    { name = "Oliver Baer", email = "research@nyxcore.cloud" },
+]
+keywords = [
+    "adversarial-review",
+    "text-verification",
+    "security-analysis",
+    "multi-agent",
+    "epistemic-robustness",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Security",
+]
+dependencies = [
+    "anthropic>=0.40.0",
+    "openai>=1.50.0",
+    "pydantic>=2.0",
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.8",
+]
+
+[project.scripts]
+ipcha = "ipcha.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ipcha"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
