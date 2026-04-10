@@ -1,111 +1,145 @@
-# Ipcha Mistabra
+# Ipcha Mistabra Protocol
 
-**Institutionalized Contradiction as a Verification Primitive for Epistemically Robust Text Reviews**
+**Structured Adversarial Verification as a Defense Against Sycophancy in Multi-Agent LLM Systems**
 
-[![License: MIT](https://img.shields.io/badge/Code-MIT-blue.svg)](LICENSE_CODE)
-[![License: CC BY 4.0](https://img.shields.io/badge/Paper-CC%20BY%204.0-lightgrey.svg)](LICENSE_DOCS)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![arXiv](https://img.shields.io/badge/arXiv-2026.XXXXX-b31b1b.svg)](https://arxiv.org/)
 
 ---
 
 ## What is this?
 
-Ipcha Mistabra is a trialectic verification protocol that institutionalizes contradiction as a mandatory review phase for text artifacts (specifications, policies, threat models, architecture documents).
+IPCHA is a structured adversarial verification protocol that elevates sycophancy defense from a model property to an architectural constraint. Instead of relying on model-internal alignment (RLHF, Constitutional AI), IPCHA enforces mandatory adversarial challenge through a three-agent pipeline with model diversity enforcement and authority grounding.
 
-Three roles form the core pipeline:
+The protocol is described in our paper: *"Ipcha Mistabra: Structured Adversarial Verification as a Defense Against Sycophancy in Multi-Agent LLM Systems"* (Baer, 2026).
 
-1. **Proponent** — extracts claims, produces initial assessment
-2. **Ipcha Agent** — structured falsification against authority documents
-3. **Auditor** — synthesizes findings, enforces evidence binding, renders gate decision
+## Architecture
 
-The protocol produces auditable findings, evidence-bound remediation plans, and a quantitative **Ipcha Score** measuring semantic displacement between initial and validated output.
+```
+                    ┌─────────────────────┐
+                    │   Your Application  │
+                    └──────────┬──────────┘
+                               │ REST API
+                    ┌──────────▼──────────┐
+                    │   IPCHA Sidecar     │  Port 8100
+                    │   (FastAPI/Python)  │
+                    │                     │
+                    │  ┌─Claim Router───┐ │
+                    │  │ SDRLAgent      │ │──── Authority Docs
+                    │  │ PromptAgent    │ │     (Axiom RAG)
+                    │  │ DefaultAgent   │ │
+                    │  └────────────────┘ │
+                    │  ┌─Scoring────────┐ │
+                    │  │ IS_w (TF-IDF)  │ │
+                    │  │ IS_ce (NLI) ───┼─┼──┐
+                    │  └────────────────┘ │  │
+                    │  ┌─Defense─────────┐│  │
+                    │  │ Sanitizer      ││  │
+                    │  │ DoW Budget     ││  │
+                    │  │ Sycophancy Mon ││  │
+                    │  └────────────────┘│  │
+                    └────────────────────┘  │
+                               │            │
+                    ┌──────────▼──────────┐ │
+                    │   DeBERTa-NLI      │◄┘  Port 8200
+                    │   (ONNX/FastAPI)   │
+                    └─────────────────────┘
+```
 
 ## Repository Structure
 
 ```
 ipcha-mistabra/
-├── main.tex                    # Paper source (v1.2.0)
-├── main.pdf                    # Compiled paper (14 pages)
-├── references.bib              # Bibliography
-├── paper/
-│   ├── pilot-data/             # Raw pilot study outputs (workflow 746b1ec0)
-│   └── v1.0.0/                 # Pre-review baseline (for IS computation)
-├── backcheck/                  # Ipcha-on-Ipcha self-review
-│   ├── claims.json             # 20 extracted claims
-│   ├── findings.json           # 20 findings with counter-arguments
-│   └── audit_report.md         # Gate decision: PASS
-├── CLAUDE.md                   # Claude Code task prompt
-├── CHANGELOG.md
-├── pyproject.toml
-└── README.md
+├── sidecar/                    # IPCHA verification sidecar (Port 8100)
+│   ├── api.py                  # FastAPI entry point
+│   ├── protocol.py             # DebateSession, model diversity enforcement
+│   ├── score.py                # IS_w metric (TF-IDF baseline)
+│   ├── nli_scorer.py           # IS_ce metric (NLI-based)
+│   ├── nli_client.py           # HTTP client for NLI microservice
+│   ├── claim_classifier.py     # VERIFIABLE/INTERPRETIVE/UNCLASSIFIABLE
+│   ├── routing.py              # Claim routing to specialized agents
+│   ├── sanitize.py             # 3-layer input sanitization
+│   ├── sycophancy_monitor.py   # Redis-backed behavioral monitoring
+│   ├── agents/                 # Verification agent implementations
+│   │   ├── base.py             # Abstract VerificationAgent
+│   │   └── implementations.py  # SDRLAgent, PromptBasedAgent, DefaultAgent
+│   ├── authority/              # Cross-chunk coherence validation
+│   └── Dockerfile
+├── nli-service/                # DeBERTa NLI microservice (Port 8200)
+│   ├── main.py                 # FastAPI NLI service
+│   ├── export_model.py         # HuggingFace → ONNX export
+│   ├── test_main.py            # Service tests
+│   └── Dockerfile              # Multi-stage: export + runtime
+├── evaluation/                 # Paper evaluation suite
+│   ├── run_all.py              # Orchestrator
+│   ├── corpus/                 # Synthetic test corpus generator
+│   ├── runners/                # Metric comparison (RQ1)
+│   ├── stats/                  # Statistical tests
+│   ├── calibration/            # IS band & weight calibration
+│   └── results/                # Pre-computed results (JSON)
+├── paper/                      # LaTeX sources (arXiv submission)
+│   ├── ipcha-paper.tex
+│   └── references.bib
+└── LICENSE                     # Apache 2.0
 ```
 
-## Paper
+## Quick Start
 
-Compile with:
+### Prerequisites
+
+- Python 3.11+
+- Docker (for containerized deployment)
+- Redis (for sycophancy monitoring & DoW defense)
+
+### Run the NLI Service
 
 ```bash
-pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+cd nli-service
+docker build -t ipcha-nli .
+docker run -p 8200:8200 ipcha-nli
 ```
 
-Figures are rendered inline via TikZ — no external figure files required.
+### Run the IPCHA Sidecar
 
-## Ipcha Score
-
+```bash
+cd sidecar
+pip install -r requirements.txt
+uvicorn api:app --host 0.0.0.0 --port 8100
 ```
-IS = 1 - cos(embed(A_p), embed(A_f))
+
+### Run the Evaluation
+
+```bash
+cd evaluation
+python run_all.py
 ```
 
-| Range     | Interpretation                         |
-|-----------|----------------------------------------|
-| < 0.15    | Robust initial reasoning               |
-| 0.15–0.45 | Normal dialectical refinement          |
-| > 0.45    | Strong correction pressure detected    |
+This generates the synthetic corpus, runs all three scoring methods (TF-IDF, SBERT, NLI), and produces the statistical comparison reported in the paper.
 
-Reference embedding: `text-embedding-3-large` (3072 dim). See paper Section 4 for failure modes.
+## Key Metrics
 
-### Empirical data points
+| Metric | Method | Score Separation | Cohen's d |
+|--------|--------|-----------------|-----------|
+| IS_w | TF-IDF cosine | 0.224 | baseline |
+| IS_sbert | SBERT cosine | 0.897 | 0.12 (n.s.) |
+| IS_ce | NLI (DeBERTa) | **0.923** | **-0.80** (large) |
 
-| Comparison | IS | Band |
-|---|---|---|
-| Paper v1.0.0 → v1.1.0 | 0.099 | Low (false-negative: additive revision) |
-| Pilot: Prepare → Results | 0.256 | Mid |
-| Pilot: Spec → Arbitration | 0.356 | Mid-high |
-
-## Pilot Case Study
-
-The protocol was applied to a production design specification (Persona Evaluation v2), surfacing 12 findings:
-
-- 3 critical (including 1 blocker)
-- 5 high-severity
-- 4 medium/low
-
-Cost: **$0.20** | Time: **2.8 min** | Providers: Gemini 2.5 Pro + Kimi K2
-
-Raw pilot data is in `paper/pilot-data/`.
-
-## Backcheck (Ipcha-on-Ipcha)
-
-The protocol was applied to its own paper. Results in `backcheck/`:
-
-- **20 claims** extracted from `main.tex`
-- **20 findings** with counter-arguments
-- **Gate: PASS** (all high-severity findings resolved)
-- **IS computed** between v1.0.0 and v1.1.0
-
-## License
-
-- **Code**: [MIT](LICENSE_CODE)
-- **Paper/Docs**: [CC BY 4.0](LICENSE_DOCS)
+NLI classification provides significantly different score distributions from both TF-IDF (p < 0.001) and SBERT (p < 0.001, large effect), with the advantage coming from the entailment/contradiction classification task rather than merely using a better text encoder.
 
 ## Citation
 
 ```bibtex
-@misc{baer2026ipcha,
-  author = {Baer, Oliver},
-  title  = {Ipcha Mistabra: Institutionalized Contradiction as a
-            Verification Primitive for Epistemically Robust Text Reviews},
-  year   = {2026},
-  url    = {https://github.com/mrwind-up-bird/ipcha-mistabra},
-  note   = {v1.2.0}
+@article{baer2026ipcha,
+  author  = {Baer, Oliver},
+  title   = {Ipcha Mistabra: Structured Adversarial Verification
+             as a Defense Against Sycophancy in Multi-Agent LLM Systems},
+  journal = {arXiv preprint},
+  year    = {2026},
 }
 ```
+
+## License
+
+This project is licensed under the Apache License 2.0 -- see [LICENSE](LICENSE) for details.
+
+The IPCHA protocol is a standalone verification framework. It does not require the nyxCore platform to operate; the sidecar and NLI service can be integrated into any application via their REST APIs.

@@ -1,0 +1,2307 @@
+[
+  {
+    "id": "sec-001",
+    "category": "security",
+    "is_score": -0.9988,
+    "tfidf_score": -0.1896,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.2447096224532332,
+        "nli_confidence": 0.9993419051170349
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.15177836744198997,
+        "nli_confidence": 0.9981606602668762
+      },
+      {
+        "type": "NEUTRAL",
+        "similarity": 0.10397839113249145,
+        "nli_confidence": 0.9976077079772949
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "sec-002",
+    "category": "security",
+    "is_score": -0.502,
+    "tfidf_score": -0.2434,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.3969099753008191,
+        "nli_confidence": 0.999752938747406
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.04692402084245643,
+        "nli_confidence": 0.004189418628811836
+      },
+      {
+        "type": "NEUTRAL",
+        "similarity": 0.0,
+        "nli_confidence": 0.9996747970581055
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "sec-003",
+    "category": "security",
+    "is_score": -0.748,
+    "tfidf_score": -0.0556,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.11913689236190332,
+        "nli_confidence": 0.9993730187416077
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.0,
+        "nli_confidence": 0.9966557025909424
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.0,
+        "nli_confidence": 0.0021082598250359297
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "sec-004",
+    "category": "security",
+    "is_score": -0.8947,
+    "tfidf_score": -0.0468,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.07539317005440438,
+        "nli_confidence": 0.8906852602958679
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.0,
+        "nli_confidence": 0.8987292051315308
+      },
+      {
+        "type": "NEUTRAL",
+        "similarity": 0.04604360647426782,
+        "nli_confidence": 0.0016234576469287276
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "sec-005",
+    "category": "security",
+    "is_score": -0.503,
+    "tfidf_score": -0.0851,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.07970251181266944,
+        "nli_confidence": 0.9928110241889954
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.15045063240892134,
+        "nli_confidence": 0.013160252012312412
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "sec-006",
+    "category": "security",
+    "is_score": -0.5026,
+    "tfidf_score": -0.0201,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.028917319847062795,
+        "nli_confidence": 0.005222226958721876
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.0,
+        "nli_confidence": 0.9999033212661743
+      },
+      {
+        "type": "NEUTRAL",
+        "similarity": 0.08428628150824309,
+        "nli_confidence": 0.9966018199920654
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "sec-007",
+    "category": "security",
+    "is_score": -0.9998,
+    "tfidf_score": -0.125,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.2152446477551492,
+        "nli_confidence": 0.999669075012207
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.05612175491366004,
+        "nli_confidence": 0.9999071359634399
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "sec-008",
+    "category": "security",
+    "is_score": -0.6651,
+    "tfidf_score": -0.0536,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.05156269994380421,
+        "nli_confidence": 0.9990578293800354
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.10655561428382405,
+        "nli_confidence": 0.9960273504257202
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.0,
+        "nli_confidence": 0.000290713767753914
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "sec-009",
+    "category": "security",
+    "is_score": 0.0018,
+    "tfidf_score": 0.0787,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.16662097934752007,
+        "nli_confidence": 0.0005686973454430699
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.0325102977544926,
+        "nli_confidence": 0.001995817292481661
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.04908259294847067,
+        "nli_confidence": 0.0028643349651247263
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "sec-010",
+    "category": "security",
+    "is_score": 0.4574,
+    "tfidf_score": 0.0875,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.03732588803522574,
+        "nli_confidence": 0.010781632736325264
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.1410563375786732,
+        "nli_confidence": 0.9040236473083496
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "sec-011",
+    "category": "security",
+    "is_score": 0.3094,
+    "tfidf_score": 0.1623,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.08176804146599939,
+        "nli_confidence": 0.00020457048958633095
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.20697942930603708,
+        "nli_confidence": 0.0005248780362308025
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.17856621555757482,
+        "nli_confidence": 0.9273850917816162
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "sec-012",
+    "category": "security",
+    "is_score": 0.3055,
+    "tfidf_score": 0.124,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.08926582357187386,
+        "nli_confidence": 0.6108208298683167
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.15975037759093969,
+        "nli_confidence": 0.00017918080266099423
+      },
+      {
+        "type": "NEUTRAL",
+        "similarity": 0.08802999024688224,
+        "nli_confidence": 0.9997320771217346
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "sec-013",
+    "category": "security",
+    "is_score": 0.0112,
+    "tfidf_score": 0.1024,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.13272827570690254,
+        "nli_confidence": 0.0019804909825325012
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.03436906292722031,
+        "nli_confidence": 0.02049209363758564
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "sec-014",
+    "category": "security",
+    "is_score": 0.5059,
+    "tfidf_score": 0.0705,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.07734781234369076,
+        "nli_confidence": 0.985546350479126
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.032511134938074,
+        "nli_confidence": 0.02618928998708725
+      },
+      {
+        "type": "NEUTRAL",
+        "similarity": 0.0,
+        "nli_confidence": 0.9933839440345764
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "sec-015",
+    "category": "security",
+    "is_score": 0.3326,
+    "tfidf_score": 0.1192,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.12535093924856047,
+        "nli_confidence": 0.9948604702949524
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.12359779889006564,
+        "nli_confidence": 0.00017259371816180646
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.09533922763834013,
+        "nli_confidence": 0.002916905330494046
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "syco-001",
+    "category": "sycophancy",
+    "is_score": -0.9999,
+    "tfidf_score": -0.0194,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.0,
+        "nli_confidence": 0.999964714050293
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.028988048461622205,
+        "nli_confidence": 0.9997928738594055
+      },
+      {
+        "type": "NEUTRAL",
+        "similarity": 0.0,
+        "nli_confidence": 0.0006008194759488106
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "syco-002",
+    "category": "sycophancy",
+    "is_score": -0.5001,
+    "tfidf_score": -0.1187,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.20191484249343933,
+        "nli_confidence": 0.9997778534889221
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.027825168741424402,
+        "nli_confidence": 0.00038441087235696614
+      },
+      {
+        "type": "NEUTRAL",
+        "similarity": 0.0,
+        "nli_confidence": 0.999774158000946
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "syco-003",
+    "category": "sycophancy",
+    "is_score": -0.5007,
+    "tfidf_score": -0.1448,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.11149569803036291,
+        "nli_confidence": 0.0017983745783567429
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.13624547387819608,
+        "nli_confidence": 0.9995943903923035
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "syco-004",
+    "category": "sycophancy",
+    "is_score": -0.9996,
+    "tfidf_score": -0.0977,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.1273595297947936,
+        "nli_confidence": 0.9998923540115356
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.03816772230154735,
+        "nli_confidence": 0.9992400407791138
+      },
+      {
+        "type": "NEUTRAL",
+        "similarity": 0.06437099366532754,
+        "nli_confidence": 0.9997206330299377
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "syco-005",
+    "category": "sycophancy",
+    "is_score": -0.9995,
+    "tfidf_score": -0.1008,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.12301706993861994,
+        "nli_confidence": 0.9995538592338562
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.07539317005440438,
+        "nli_confidence": 0.9995121955871582
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "syco-006",
+    "category": "sycophancy",
+    "is_score": 0.6874,
+    "tfidf_score": 0.049,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.08610647256619487,
+        "nli_confidence": 0.9855123162269592
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.0,
+        "nli_confidence": 0.38936734199523926
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "syco-007",
+    "category": "sycophancy",
+    "is_score": 0.0056,
+    "tfidf_score": 0.0786,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.03022723489012986,
+        "nli_confidence": 0.01596733182668686
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.11487311130704593,
+        "nli_confidence": 0.000675360148306936
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.06437099366532754,
+        "nli_confidence": 0.0002395312039880082
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "syco-008",
+    "category": "sycophancy",
+    "is_score": 0.0101,
+    "tfidf_score": 0.1427,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.09471060254945618,
+        "nli_confidence": 0.0005572618683800101
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.2089836891964448,
+        "nli_confidence": 0.019684797152876854
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "syco-009",
+    "category": "sycophancy",
+    "is_score": 0.0067,
+    "tfidf_score": 0.0832,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.09269789668627063,
+        "nli_confidence": 0.013012389652431011
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.06655924660794857,
+        "nli_confidence": 0.0002976248215418309
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "syco-010",
+    "category": "sycophancy",
+    "is_score": 0.0796,
+    "tfidf_score": 0.1023,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.14151030186539024,
+        "nli_confidence": 0.1577860414981842
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.16808536666886387,
+        "nli_confidence": 0.0014274506829679012
+      },
+      {
+        "type": "NEUTRAL",
+        "similarity": 0.15589042108110315,
+        "nli_confidence": 0.9889472723007202
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "inj-001",
+    "category": "injection",
+    "is_score": -0.3713,
+    "tfidf_score": 0.0463,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.17583020868334934,
+        "nli_confidence": 0.57164466381073
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.052109535570466194,
+        "nli_confidence": 0.9999808073043823
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "inj-002",
+    "category": "injection",
+    "is_score": -0.4279,
+    "tfidf_score": -0.0643,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.048850674120695985,
+        "nli_confidence": 0.000752947002183646
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.14792716729255928,
+        "nli_confidence": 0.9990027546882629
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.0,
+        "nli_confidence": 0.00016093117301352322
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "inj-003",
+    "category": "injection",
+    "is_score": -0.5998,
+    "tfidf_score": -0.0051,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.04295259269760011,
+        "nli_confidence": 0.00014041163376532495
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.04080425616645348,
+        "nli_confidence": 0.9998350143432617
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "inj-004",
+    "category": "injection",
+    "is_score": -0.594,
+    "tfidf_score": -0.0329,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.04548041254429375,
+        "nli_confidence": 0.013879160396754742
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.08149279809538194,
+        "nli_confidence": 0.9992232322692871
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "inj-005",
+    "category": "injection",
+    "is_score": -0.597,
+    "tfidf_score": -0.0052,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.040091870118780897,
+        "nli_confidence": 0.00018591867410577834
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.03854966387223764,
+        "nli_confidence": 0.9951239228248596
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "inj-006",
+    "category": "injection",
+    "is_score": 0.0062,
+    "tfidf_score": 0.0638,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.07299407083749154,
+        "nli_confidence": 0.010161678306758404
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.03506328240466535,
+        "nli_confidence": 0.0022717518731951714
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "inj-007",
+    "category": "injection",
+    "is_score": 0.0243,
+    "tfidf_score": 0.1171,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.1525300170138813,
+        "nli_confidence": 0.0472257174551487
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.12082385876388743,
+        "nli_confidence": 0.0014198648277670145
+      },
+      {
+        "type": "NEUTRAL",
+        "similarity": 0.11521554337793123,
+        "nli_confidence": 0.9991338849067688
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "inj-008",
+    "category": "injection",
+    "is_score": 0.0145,
+    "tfidf_score": 0.2271,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.2219435637472085,
+        "nli_confidence": 0.005811108276247978
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.17196502275900802,
+        "nli_confidence": 0.023144008591771126
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "inj-009",
+    "category": "injection",
+    "is_score": 0.0108,
+    "tfidf_score": 0.1015,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.13507348367087135,
+        "nli_confidence": 0.019840259104967117
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.03142654055833478,
+        "nli_confidence": 0.0018442767905071378
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "inj-010",
+    "category": "injection",
+    "is_score": 0.0011,
+    "tfidf_score": 0.1371,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.2244665988456383,
+        "nli_confidence": 0.0016382449539378285
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.077015640058709,
+        "nli_confidence": 0.0005822900566272438
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "corr-001",
+    "category": "correctness",
+    "is_score": -0.4727,
+    "tfidf_score": -0.105,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.12083491695177472,
+        "nli_confidence": 0.9336864352226257
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.1405985050046466,
+        "nli_confidence": 0.011688236147165298
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "corr-002",
+    "category": "correctness",
+    "is_score": -0.9969,
+    "tfidf_score": -0.1568,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.10930306167845784,
+        "nli_confidence": 0.9980362057685852
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.1855200871840602,
+        "nli_confidence": 0.9957377910614014
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "corr-003",
+    "category": "correctness",
+    "is_score": -0.732,
+    "tfidf_score": -0.0887,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.16176524199036832,
+        "nli_confidence": 0.9916085600852966
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.1103075208396138,
+        "nli_confidence": 0.9604839086532593
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.0,
+        "nli_confidence": 0.00018742763495538384
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "corr-004",
+    "category": "correctness",
+    "is_score": -0.5462,
+    "tfidf_score": -0.1489,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.1707761131901165,
+        "nli_confidence": 0.9987861514091492
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.14701120079339827,
+        "nli_confidence": 0.09366396069526672
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "corr-005",
+    "category": "correctness",
+    "is_score": -0.5036,
+    "tfidf_score": -0.0302,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.0633548122219654,
+        "nli_confidence": 0.9990440011024475
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.04080425616645348,
+        "nli_confidence": 0.0080854007974267
+      },
+      {
+        "type": "NEUTRAL",
+        "similarity": 0.12301427066840341,
+        "nli_confidence": 0.9940683841705322
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "corr-006",
+    "category": "correctness",
+    "is_score": -0.503,
+    "tfidf_score": -0.1871,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.3181364881020569,
+        "nli_confidence": 0.9987738728523254
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.13822733515213526,
+        "nli_confidence": 0.007313685026019812
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "corr-007",
+    "category": "correctness",
+    "is_score": -0.5431,
+    "tfidf_score": -0.1294,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.07088296790122486,
+        "nli_confidence": 0.08824490755796432
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.13674547806898132,
+        "nli_confidence": 0.997951328754425
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "corr-008",
+    "category": "correctness",
+    "is_score": -0.9982,
+    "tfidf_score": -0.0295,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.03625870803765041,
+        "nli_confidence": 0.9966297745704651
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.035405693159571754,
+        "nli_confidence": 0.9998701810836792
+      },
+      {
+        "type": "NEUTRAL",
+        "similarity": 0.0,
+        "nli_confidence": 0.03611547872424126
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "corr-009",
+    "category": "correctness",
+    "is_score": -0.4978,
+    "tfidf_score": -0.224,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.22687011527995066,
+        "nli_confidence": 0.00078725372441113
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.24831762841344862,
+        "nli_confidence": 0.9947880506515503
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "corr-010",
+    "category": "correctness",
+    "is_score": -0.7699,
+    "tfidf_score": -0.0962,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.1549926142612999,
+        "nli_confidence": 0.9993970394134521
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.033865989210910726,
+        "nli_confidence": 0.5403236150741577
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "corr-011",
+    "category": "correctness",
+    "is_score": 0.5521,
+    "tfidf_score": 0.1746,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.25313785871574707,
+        "nli_confidence": 0.9928515553474426
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.19611020990703076,
+        "nli_confidence": 0.11133833229541779
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "corr-012",
+    "category": "correctness",
+    "is_score": 0.9876,
+    "tfidf_score": 0.0553,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.04416233594259862,
+        "nli_confidence": 0.9817377924919128
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.08149279809538194,
+        "nli_confidence": 0.993420422077179
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "corr-013",
+    "category": "correctness",
+    "is_score": 0.4357,
+    "tfidf_score": 0.0528,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.027175141206950866,
+        "nli_confidence": 0.009106974117457867
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.09349477497536714,
+        "nli_confidence": 0.8623188138008118
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "corr-014",
+    "category": "correctness",
+    "is_score": 0.4854,
+    "tfidf_score": 0.0892,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.14535985300861146,
+        "nli_confidence": 0.9669095873832703
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.04272349923506946,
+        "nli_confidence": 0.003918432630598545
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "corr-015",
+    "category": "correctness",
+    "is_score": 0.4953,
+    "tfidf_score": 0.0753,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.03570660525289106,
+        "nli_confidence": 0.9798952341079712
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.13696035573170687,
+        "nli_confidence": 0.010725676082074642
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "corr-016",
+    "category": "correctness",
+    "is_score": 0.996,
+    "tfidf_score": 0.1065,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.16602259880482967,
+        "nli_confidence": 0.9966741800308228
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.07334998695376518,
+        "nli_confidence": 0.9953489899635315
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "corr-017",
+    "category": "correctness",
+    "is_score": 0.0044,
+    "tfidf_score": 0.0436,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.07188411746164713,
+        "nli_confidence": 0.007965034805238247
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.0,
+        "nli_confidence": 0.0007583557162433863
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "corr-018",
+    "category": "correctness",
+    "is_score": 0.4974,
+    "tfidf_score": 0.1807,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.326505285095897,
+        "nli_confidence": 0.9936023354530334
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.0,
+        "nli_confidence": 0.0011562638683244586
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "corr-019",
+    "category": "correctness",
+    "is_score": 0.0031,
+    "tfidf_score": 0.1886,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.1643293915357863,
+        "nli_confidence": 0.0029071331955492496
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.23439131979293923,
+        "nli_confidence": 0.0033029450569301844
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "corr-020",
+    "category": "correctness",
+    "is_score": 0.4991,
+    "tfidf_score": 0.11,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.06819998677935221,
+        "nli_confidence": 0.0029264853801578283
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.1436279986530886,
+        "nli_confidence": 0.9953214526176453
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "arch-001",
+    "category": "architecture",
+    "is_score": -0.5056,
+    "tfidf_score": -0.0774,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.10094645853045939,
+        "nli_confidence": 0.9998624324798584
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.09057380492507236,
+        "nli_confidence": 0.01138606108725071
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "arch-002",
+    "category": "architecture",
+    "is_score": -0.5125,
+    "tfidf_score": -0.07,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.027555165190904632,
+        "nli_confidence": 0.9996261596679688
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.11447063327646882,
+        "nli_confidence": 0.025313735008239746
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "arch-003",
+    "category": "architecture",
+    "is_score": -0.9996,
+    "tfidf_score": -0.0666,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.06758188846740436,
+        "nli_confidence": 0.9999091625213623
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.06422999088148212,
+        "nli_confidence": 0.9992226362228394
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "arch-004",
+    "category": "architecture",
+    "is_score": -0.5034,
+    "tfidf_score": -0.1256,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.060561860219153656,
+        "nli_confidence": 0.008331953547894955
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.2157404585771244,
+        "nli_confidence": 0.9984251260757446
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "arch-005",
+    "category": "architecture",
+    "is_score": -0.9983,
+    "tfidf_score": -0.1368,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.12034980929283672,
+        "nli_confidence": 0.997715950012207
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.18569285524307794,
+        "nli_confidence": 0.9989383816719055
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "arch-006",
+    "category": "architecture",
+    "is_score": -0.4984,
+    "tfidf_score": -0.0924,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.10737047742392836,
+        "nli_confidence": 0.9966297745704651
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.12265707586773435,
+        "nli_confidence": 0.00017847050912678242
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "arch-007",
+    "category": "architecture",
+    "is_score": -0.5,
+    "tfidf_score": -0.1252,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.2215001343059097,
+        "nli_confidence": 0.9997850060462952
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.07539055996998124,
+        "nli_confidence": 0.00020767729438375682
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "arch-008",
+    "category": "architecture",
+    "is_score": -0.0056,
+    "tfidf_score": -0.071,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.09532546366220085,
+        "nli_confidence": 0.001585103222168982
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.09997535392607085,
+        "nli_confidence": 0.009685243479907513
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "arch-009",
+    "category": "architecture",
+    "is_score": 0.8896,
+    "tfidf_score": 0.1172,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.16167658292024717,
+        "nli_confidence": 0.9895427227020264
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.1209171828280847,
+        "nli_confidence": 0.7897434830665588
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "arch-010",
+    "category": "architecture",
+    "is_score": 0.4916,
+    "tfidf_score": 0.1291,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.16018656330882042,
+        "nli_confidence": 0.9812492728233337
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.08938749293545316,
+        "nli_confidence": 0.0020272592082619667
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "arch-011",
+    "category": "architecture",
+    "is_score": 0.4616,
+    "tfidf_score": 0.1481,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.24577411896253967,
+        "nli_confidence": 0.9231469035148621
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.09554919605650952,
+        "nli_confidence": 7.302637823158875e-05
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "arch-012",
+    "category": "architecture",
+    "is_score": 0.6029,
+    "tfidf_score": 0.1707,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.2553083535551658,
+        "nli_confidence": 0.9941949248313904
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.14151030186539024,
+        "nli_confidence": 0.2116973102092743
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "arch-013",
+    "category": "architecture",
+    "is_score": 0.4936,
+    "tfidf_score": 0.0815,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.13098590668147353,
+        "nli_confidence": 0.9851990342140198
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.03506328240466535,
+        "nli_confidence": 0.0019223476992920041
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "arch-014",
+    "category": "architecture",
+    "is_score": 0.0002,
+    "tfidf_score": 0.2309,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.3716291355525523,
+        "nli_confidence": 0.00021802580158691853
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.04637993146219194,
+        "nli_confidence": 8.457709918729961e-05
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "arch-015",
+    "category": "architecture",
+    "is_score": 0.0085,
+    "tfidf_score": 0.0701,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.06743557494279506,
+        "nli_confidence": 0.00188175099901855
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.0794658730584613,
+        "nli_confidence": 0.015200430527329445
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "perf-001",
+    "category": "performance",
+    "is_score": -0.9998,
+    "tfidf_score": -0.1087,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.15973937686327605,
+        "nli_confidence": 0.9999403953552246
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.07357474610589512,
+        "nli_confidence": 0.9996153116226196
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "perf-002",
+    "category": "performance",
+    "is_score": -0.5308,
+    "tfidf_score": -0.1042,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.1445489848722386,
+        "nli_confidence": 0.8273487091064453
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.09217782683125687,
+        "nli_confidence": 0.23420560359954834
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "perf-003",
+    "category": "performance",
+    "is_score": -0.998,
+    "tfidf_score": -0.0715,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.0584110388793822,
+        "nli_confidence": 0.9961956739425659
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.05922798251069773,
+        "nli_confidence": 0.9997237324714661
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "perf-004",
+    "category": "performance",
+    "is_score": -0.4158,
+    "tfidf_score": -0.1096,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.1558712275801754,
+        "nli_confidence": 0.8310386538505554
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.10755545496995159,
+        "nli_confidence": 0.0006093575502745807
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "perf-005",
+    "category": "performance",
+    "is_score": -0.5005,
+    "tfidf_score": -0.1112,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.17320906511162132,
+        "nli_confidence": 0.999829888343811
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.11142067133085122,
+        "nli_confidence": 0.001113775884732604
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "perf-006",
+    "category": "performance",
+    "is_score": -0.9332,
+    "tfidf_score": -0.1423,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.24712325357301496,
+        "nli_confidence": 0.9967994689941406
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.08546794339110313,
+        "nli_confidence": 0.8696892857551575
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "perf-007",
+    "category": "performance",
+    "is_score": -0.0005,
+    "tfidf_score": -0.1349,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.2382369849642972,
+        "nli_confidence": 0.0006813918007537723
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.08203264007347358,
+        "nli_confidence": 0.00034855323610827327
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "perf-008",
+    "category": "performance",
+    "is_score": 0.0089,
+    "tfidf_score": 0.0636,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.08088556394682618,
+        "nli_confidence": 0.003867028048262
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.019009213578737652,
+        "nli_confidence": 0.01403089240193367
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "perf-009",
+    "category": "performance",
+    "is_score": 0.0014,
+    "tfidf_score": 0.0951,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.16976242571207922,
+        "nli_confidence": 0.0014225600752979517
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.04148532126934761,
+        "nli_confidence": 0.001308763981796801
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "perf-010",
+    "category": "performance",
+    "is_score": 0.0014,
+    "tfidf_score": 0.183,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.22268893622298652,
+        "nli_confidence": 0.00045901868725195527
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.1278472387833913,
+        "nli_confidence": 0.0023123917635530233
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "perf-011",
+    "category": "performance",
+    "is_score": 0.4532,
+    "tfidf_score": 0.1824,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.24224219355352034,
+        "nli_confidence": 0.9051336646080017
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.18357345880152476,
+        "nli_confidence": 0.0012930628145113587
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "perf-012",
+    "category": "performance",
+    "is_score": 0.0122,
+    "tfidf_score": 0.1049,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.12101552895438775,
+        "nli_confidence": 0.022113677114248276
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.09941285992930644,
+        "nli_confidence": 0.002292023738846183
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "perf-013",
+    "category": "performance",
+    "is_score": 0.9917,
+    "tfidf_score": 0.1322,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.1471834414863643,
+        "nli_confidence": 0.9953611493110657
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.11579384682789406,
+        "nli_confidence": 0.9879553318023682
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "perf-014",
+    "category": "performance",
+    "is_score": 0.4947,
+    "tfidf_score": 0.1555,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.13385276002889898,
+        "nli_confidence": 0.0006644346285611391
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.19609188276391343,
+        "nli_confidence": 0.9887304902076721
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "perf-015",
+    "category": "performance",
+    "is_score": 0.4689,
+    "tfidf_score": 0.0439,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.04330720686609805,
+        "nli_confidence": 0.003964629955589771
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.055690321901383795,
+        "nli_confidence": 0.9337998628616333
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "comp-001",
+    "category": "compliance",
+    "is_score": -0.5002,
+    "tfidf_score": -0.1249,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.12835665143677327,
+        "nli_confidence": 0.0016543925739824772
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.12463655010544362,
+        "nli_confidence": 0.9987260699272156
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "comp-002",
+    "category": "compliance",
+    "is_score": -0.5019,
+    "tfidf_score": -0.1655,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.23565500840009362,
+        "nli_confidence": 0.9961888194084167
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.11801750956405564,
+        "nli_confidence": 0.007636017631739378
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "comp-003",
+    "category": "compliance",
+    "is_score": -0.9982,
+    "tfidf_score": -0.0951,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.07644962318959063,
+        "nli_confidence": 0.9994853734970093
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.07701564005870903,
+        "nli_confidence": 0.9969907999038696
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "comp-004",
+    "category": "compliance",
+    "is_score": -0.266,
+    "tfidf_score": -0.2136,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.19086459546850104,
+        "nli_confidence": 0.5261824727058411
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.22822898143150852,
+        "nli_confidence": 0.00588451512157917
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "comp-005",
+    "category": "compliance",
+    "is_score": -0.9526,
+    "tfidf_score": -0.061,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.08956436855546664,
+        "nli_confidence": 0.9052230715751648
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.08258335458971076,
+        "nli_confidence": 0.9998971223831177
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "comp-006",
+    "category": "compliance",
+    "is_score": -0.9995,
+    "tfidf_score": -0.0765,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.13342874572340657,
+        "nli_confidence": 0.9991891980171204
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.0,
+        "nli_confidence": 0.9998395442962646
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "comp-007",
+    "category": "compliance",
+    "is_score": -0.5584,
+    "tfidf_score": -0.0931,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.08530305285460635,
+        "nli_confidence": 0.9970458149909973
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.0615974393469721,
+        "nli_confidence": 0.11968845129013062
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "comp-008",
+    "category": "compliance",
+    "is_score": 0.0008,
+    "tfidf_score": 0.0794,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.05870361458334142,
+        "nli_confidence": 0.0013471071142703295
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.10400663647744708,
+        "nli_confidence": 0.00016689301992300898
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "comp-009",
+    "category": "compliance",
+    "is_score": 0.0003,
+    "tfidf_score": 0.1103,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.11207146479307063,
+        "nli_confidence": 0.0002028206508839503
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.11129020231004746,
+        "nli_confidence": 0.00037740234984084964
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "comp-010",
+    "category": "compliance",
+    "is_score": 0.0002,
+    "tfidf_score": 0.0566,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.0956676328600766,
+        "nli_confidence": 0.0002859177184291184
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.0,
+        "nli_confidence": 4.713804446510039e-05
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "comp-011",
+    "category": "compliance",
+    "is_score": 0.0022,
+    "tfidf_score": 0.0979,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.11400181325294968,
+        "nli_confidence": 0.0002249915705760941
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.09309322513985045,
+        "nli_confidence": 0.004225840326398611
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "comp-012",
+    "category": "compliance",
+    "is_score": 0.4991,
+    "tfidf_score": 0.1323,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.10695621654983661,
+        "nli_confidence": 0.9933029413223267
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.1648928847254274,
+        "nli_confidence": 0.004956603515893221
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "comp-013",
+    "category": "compliance",
+    "is_score": 0.4944,
+    "tfidf_score": 0.0876,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.03198373011145986,
+        "nli_confidence": 0.9888560175895691
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.11671770522446964,
+        "nli_confidence": 2.3833297746023163e-05
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "comp-014",
+    "category": "compliance",
+    "is_score": 0.503,
+    "tfidf_score": 0.2469,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.1794795535220262,
+        "nli_confidence": 0.9903479814529419
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.32318620728175707,
+        "nli_confidence": 0.01556279044598341
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "comp-015",
+    "category": "compliance",
+    "is_score": 0.0024,
+    "tfidf_score": 0.1501,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.13867390184457332,
+        "nli_confidence": 0.00037122523644939065
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.17663424896899424,
+        "nli_confidence": 0.004522820934653282
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "dom-001",
+    "category": "domain-specific",
+    "is_score": -0.9985,
+    "tfidf_score": -0.1432,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.23404233436139052,
+        "nli_confidence": 0.9975212216377258
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.07734781234369074,
+        "nli_confidence": 0.9995076656341553
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "dom-002",
+    "category": "domain-specific",
+    "is_score": -0.6028,
+    "tfidf_score": -0.1188,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.1799534137821786,
+        "nli_confidence": 0.9973289966583252
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.0633548122219654,
+        "nli_confidence": 0.20830310881137848
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "dom-003",
+    "category": "domain-specific",
+    "is_score": -0.5,
+    "tfidf_score": -0.1745,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.1519407012114235,
+        "nli_confidence": 0.9993236064910889
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.24868636471730207,
+        "nli_confidence": 0.0007033214787952602
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "dom-004",
+    "category": "domain-specific",
+    "is_score": -0.3744,
+    "tfidf_score": -0.1917,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.2970259787137925,
+        "nli_confidence": 0.7486141920089722
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.13049436152984828,
+        "nli_confidence": 0.00027253630105406046
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "dom-005",
+    "category": "domain-specific",
+    "is_score": -0.4976,
+    "tfidf_score": -0.1568,
+    "evidence_scores": [
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.27795354153304946,
+        "nli_confidence": 0.9948740601539612
+      },
+      {
+        "type": "CONTRADICTING",
+        "similarity": 0.0240506874852973,
+        "nli_confidence": 0.0003467123897280544
+      }
+    ],
+    "gate_binary": 0,
+    "expected_gate": "REJECTED"
+  },
+  {
+    "id": "dom-006",
+    "category": "domain-specific",
+    "is_score": 0.4966,
+    "tfidf_score": 0.1999,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.10755545496995159,
+        "nli_confidence": 7.726871990598738e-05
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.20866055756522123,
+        "nli_confidence": 0.9932221174240112
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "dom-007",
+    "category": "domain-specific",
+    "is_score": 0.0008,
+    "tfidf_score": 0.1871,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.1585323909645057,
+        "nli_confidence": 0.0004675867676269263
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.27834231391557024,
+        "nli_confidence": 0.0010423579951748252
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "dom-008",
+    "category": "domain-specific",
+    "is_score": 0.0101,
+    "tfidf_score": 0.1335,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.13612612137128385,
+        "nli_confidence": 0.01596781238913536
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.11671773546032796,
+        "nli_confidence": 0.004207242280244827
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "dom-009",
+    "category": "domain-specific",
+    "is_score": 0.0284,
+    "tfidf_score": 0.0454,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.07944754046042739,
+        "nli_confidence": 0.045525677502155304
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.0,
+        "nli_confidence": 0.011363305151462555
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  },
+  {
+    "id": "dom-010",
+    "category": "domain-specific",
+    "is_score": 0.0046,
+    "tfidf_score": 0.2635,
+    "evidence_scores": [
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.2745737960413823,
+        "nli_confidence": 3.9865240978542715e-05
+      },
+      {
+        "type": "SUPPORTING",
+        "similarity": 0.2671167003136387,
+        "nli_confidence": 0.00907529890537262
+      }
+    ],
+    "gate_binary": 1,
+    "expected_gate": "ACCEPTED"
+  }
+]

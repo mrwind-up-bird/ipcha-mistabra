@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pydantic>=2.0
+httpx
+redis
+numpy
+scipy
+scikit-learn
+bleach
+pyyaml
+openai

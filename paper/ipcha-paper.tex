@@ -1,0 +1,1246 @@
+% Ipcha Mistabra: Structured Adversarial Verification as a Defense
+% Against Sycophancy in Multi-Agent LLM Systems
+%
+% arXiv preprint — compile with pdflatex
+% ---------------------------------------------------------------
+
+\documentclass[11pt,a4paper]{article}
+
+% ---- Encoding & Fonts ----
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% ---- Page geometry (arXiv default is fine, but explicit is safer) ----
+\usepackage[margin=2.5cm]{geometry}
+
+% ---- Math ----
+\usepackage{amsmath,amssymb,amsfonts}
+
+% ---- Tables ----
+\usepackage{booktabs}
+\usepackage{array}
+% \usepackage{multirow}  % not used in this paper
+
+% ---- Graphics ----
+\usepackage{graphicx}
+
+% ---- Code listings ----
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  frame=single,
+  breaklines=true,
+  columns=fullflexible,
+  language=Python
+}
+
+% ---- Hyperlinks (load last-ish) ----
+\usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+
+% ---- Bibliography ----
+\usepackage[numbers,sort&compress]{natbib}
+
+% ---- Misc ----
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{microtype}
+
+% ---- Title block ----
+\title{%
+  Ipcha Mistabra: Structured Adversarial Verification\\
+  as a Defense Against Sycophancy\\
+  in Multi-Agent LLM Systems%
+}
+
+\author{%
+  Oliver Baer\\
+  Independent Researcher, nyxCore Project\\
+  \texttt{oliver@nyxcore.cloud}%
+}
+
+\date{April 2026 (revised)}
+
+% ================================================================
+\begin{document}
+\maketitle
+
+% ----------------------------------------------------------------
+\begin{abstract}
+Large Language Models (LLMs) exhibit sycophancy---the systematic
+alignment of outputs with perceived user expectations at the expense
+of correctness.  Current mitigations (RLHF, constitutional AI,
+prompt-level strategies) remain model-internal properties vulnerable
+to distributional shift.  We present the \textbf{Ipcha Mistabra
+Protocol (IPCHA)}, a structured adversarial verification framework
+that elevates sycophancy defense from a model property to an
+\emph{architectural constraint}.  IPCHA implements mandatory
+adversarial challenge through a three-agent pipeline (Proponent,
+Ipcha Agent, Auditor) with model diversity enforcement and authority
+grounding.
+
+We define the \textbf{Integrity Score (IS)}, a family of
+domain-specific metrics quantifying claim--evidence alignment
+within the IPCHA pipeline (distinct from existing integrity
+metrics in other contexts, such as Reasoning Integrity
+Scores in clinical AI), and present an empirical
+upgrade from TF-IDF cosine similarity to Natural Language Inference
+(NLI) via a DeBERTa-v3-based microservice, building on established
+NLI-based factual consistency methods (AlignScore~\cite{zha2023alignscore},
+SummaC~\cite{laban2022summac}) and integrating them into a
+structurally adversarial context.  Evaluation on a controlled
+synthetic corpus of 110~cases (55 ACCEPTED, 55 REJECTED) across
+8~categories demonstrates that NLI-based scoring produces
+significantly wider score separation between legitimate and
+adversarial claims compared to TF-IDF ($4.1\times$, Wilcoxon
+$p<0.001$, Cohen's $d=-0.43$) and produces significantly different
+score distributions from sentence-embedding baselines ($p<0.001$,
+Cohen's $d=-0.80$, large effect).  While binary classification accuracy is
+high for all methods (TF-IDF: 98.18\%, SBERT: 100\%, NLI: 100\%),
+the differences are not statistically significant at this sample size
+(McNemar $p>0.05$), and the uniformly high accuracy reflects
+synthetic corpus simplicity rather than adversarial robustness; the
+primary contribution is the score confidence margin, not the accuracy
+delta.  IS interpretation bands are empirically derived via quartile
+analysis, replacing previously arbitrary thresholds.
+
+We discuss architectural contributions (fail-closed coherence
+validation, sycophancy monitoring, denial-of-wallet defense)
+alongside honest limitations including unverified model-family
+independence assumptions, the oracle problem, NLI performance
+degradation on domain-specific technical claims, statistical
+underpowering of the evaluation corpus, circular weight calibration,
+audit infrastructure requirements, and the fundamental impossibility
+of self-referential verification completeness.
+\end{abstract}
+
+\smallskip
+\noindent\textbf{Keywords:}
+sycophancy mitigation,
+adversarial verification,
+multi-agent LLM,
+natural language inference,
+claim verification,
+epistemic integrity
+
+% ================================================================
+\section{Introduction}\label{sec:intro}
+
+\subsection{The Sycophancy Problem}
+
+The deployment of Large Language Models in decision-critical
+workflows---from code review to regulatory compliance
+auditing---has exposed a fundamental tension between model
+helpfulness and epistemic integrity.  \emph{Sycophancy}, defined as
+the tendency of an LLM to produce outputs that align with perceived
+user preferences rather than ground truth, represents a systematic
+failure mode that compounds over time.
+
+Sharma et al.~\cite{sharma2024sycophancy} characterise sycophancy
+through controlled experiments demonstrating that models
+systematically shift their responses to match user opinions, even
+when initially correct.  Their work identifies distinct behavioral
+patterns including feedback-driven response modification and
+opinion-matching.  These patterns persist across model scales and
+alignment approaches.
+
+The danger in production systems is not that the model produces
+incorrect outputs---error is expected and manageable---but that it
+produces \emph{confidently incorrect outputs indistinguishable from
+correct ones}.  In a code review pipeline, sycophantic agreement with
+a flawed architectural proposal can propagate through downstream
+steps, encoding the original flaw as an established pattern.
+
+\subsection{Limitations of Current Approaches}
+
+Existing sycophancy mitigations operate at three levels, each with
+fundamental limitations:
+
+\textbf{Model-level alignment}
+(RLHF~\cite{christiano2017rlhf}, DPO, Constitutional
+AI~\cite{bai2022constitutional}) modifies the model's internal
+reward signal to penalise agreement-seeking behaviour.  While
+effective in controlled benchmarks, these techniques face
+distributional shift: a model trained to resist sycophancy on curated
+datasets may exhibit sycophantic behaviour on novel prompt structures
+encountered in production~\cite{perez2023discovering}.
+
+\textbf{Prompt-level strategies} (``be critical,'' ``challenge
+assumptions'') introduce adversarial framing within a single
+inference call.  These are trivially circumvented by sufficiently
+complex prompts and provide no structural guarantee.
+
+\textbf{Ensemble voting} runs multiple models and selects by
+majority.  This mitigates random error but not systematic bias: if
+all models in the ensemble share training data characteristics that
+produce the same sycophantic response, the vote converges on the
+wrong answer with high confidence.
+
+\subsection{Contributions}
+
+We propose that sycophancy defense must be elevated from a model
+property to an \emph{architectural constraint}---a structurally
+enforced pipeline requirement rather than an optional behavioral
+property.  The Ipcha Mistabra Protocol achieves this through:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Mandatory dialectical falsification}: every claim
+        faces systematic adversarial challenge as a pipeline-level
+        architectural constraint.
+  \item \textbf{Model diversity enforcement}: the adversarial agent
+        must use a different model family than the proponent,
+        preventing correlated failure from shared training biases.
+  \item \textbf{Authority grounding}: falsification is anchored in
+        authoritative reference documents (regulatory frameworks,
+        compliance standards), ensuring adversarial analysis is
+        substantive.
+  \item \textbf{Quantifiable integrity metrics}: the IS metric
+        family provides continuous measurement of claim--evidence
+        alignment, integrating established NLI techniques into a
+        structurally adversarial context with empirically calibrated
+        thresholds.
+  \item \textbf{Empirically calibrated thresholds}: IS
+        interpretation bands and contradiction weights are derived
+        from production data via statistical calibration, not
+        arbitrary selection.
+\end{enumerate}
+
+The protocol is implemented as a production system within the nyxCore
+platform, validated through unit tests, integration tests, and an
+exploratory empirical evaluation on a controlled
+synthetic corpus.
+
+% ================================================================
+\section{Background and Motivation}\label{sec:background}
+
+\subsection{Adversarial Analysis in Intelligence Practice}
+
+The Ipcha Mistabra Protocol draws its name and methodology from two
+intellectual traditions.
+
+\textbf{Israeli Military Intelligence Reform (post-1973).}
+Following the intelligence failure that preceded the Yom Kippur
+War---where analytical consensus masked critical blind spots---Israeli
+military intelligence reorganised its analytical process.
+Bar-Joseph and Kruglanski~\cite{barjoseph2003closure} document the
+establishment of the \emph{Machleket Baka'ra} (Control Department),
+a small unit charged with producing alternative assessments that
+challenged the prevailing intelligence estimate.  This was not a
+numerical ``tenth man'' rule as sometimes popularised, but a
+structural organisational reform: the creation of a \emph{permanent
+institutional role} for adversarial analysis, distinct from ad-hoc
+devil's advocacy.
+
+The key insight is organisational, not procedural: adversarial
+analysis must be \emph{structurally embedded} in the system, not
+invoked optionally.
+
+\textbf{Talmudic Dialectic (\emph{machloket l'shem shamayim}).}
+The phrase ``Ipcha Mistabra'' (Aramaic: ``the opposite is more
+likely'') represents a fundamental argumentative move in Talmudic
+reasoning: the systematic inversion of a proposition to test its
+logical structure.  Unlike destructive skepticism, this dialectical
+method aims not to demolish but to \emph{harden}---arguments that
+survive systematic inversion emerge stronger.
+
+\subsection{Falsificationism as Design Inspiration}
+
+Karl Popper's demarcation criterion~\cite{popper1959logic}---that a
+claim's epistemic strength is proportional to its resistance to
+falsification attempts---provides a conceptual inspiration for the
+IPCHA scoring model's asymmetric weighting of contradictions over
+confirmations.
+
+We emphasise that IPCHA does \emph{not} implement Popperian
+falsificationism in a formal sense.  Popper explicitly rejected
+dialectical reasoning as a scientific method, arguing in
+\emph{What is Dialectic?}~\cite{popper1940dialectic} that
+tolerance of logical contradictions leads to trivialism.  IPCHA's trialectic structure is
+closer to an \emph{adversarial verification procedure with hard
+decision boundaries} than to a dialectic in the Hegelian sense---the
+Auditor resolves contradictions rather than preserving them.  We
+therefore describe the protocol as ``structured adversarial
+verification'' rather than ``dialectical falsification'' to avoid
+conflating incompatible epistemological traditions.
+
+The operational insight we borrow from Popper is narrow:
+disconfirming evidence should be weighted more heavily than confirming
+evidence in the scoring model.  This produces a \emph{conservative
+acceptance heuristic}---not a formalisation of falsificationism.
+
+\subsection{Epistemic Fault Containment}\label{sec:efc}
+
+We observe a loose structural parallel between fault detection in
+distributed systems and adversarial challenge in multi-agent
+verification.  We deliberately avoid framing this as a Byzantine
+fault tolerance (BFT) analogy: classical BFT~\cite{lamport1982byzantine}
+requires $n \geq 3f+1$ nodes to tolerate $f$ arbitrary failures,
+meaning $f=1$ requires a minimum of 4~agents, not the 3 in our
+design.  Moreover, BFT provides mathematically proven consensus
+guarantees that our system does not and cannot offer.
+
+Instead, we define a weaker property:
+
+\begin{quote}
+\textbf{Epistemic Fault Containment (EFC).}
+A verification pipeline with $n=3$ agents can \emph{detect} (not
+tolerate) a single compromised agent, provided the other two agents
+are drawn from independent model families and the compromise
+manifests as detectable output divergence.
+\end{quote}
+
+EFC is an architectural heuristic, not a formal guarantee.  It
+provides detection through output comparison, not consensus through
+voting.  If the compromised agent is the Auditor (who produces the
+final synthesis), there is no higher-level mechanism to override its
+output---a limitation absent from true BFT systems.  In a fully
+automated high-throughput deployment, this makes the ``architectural
+constraint'' claim conditional on auditor integrity: the system can
+detect proponent or agent compromise, but not auditor compromise
+without external supervision.  The independence assumption is
+empirically unverified (Section~\ref{sec:model-independence}).
+
+The containment operates as follows:
+\begin{itemize}[leftmargin=*]
+  \item If the \textbf{Proponent} is compromised (sycophantic), the
+        Ipcha Agent's independent analysis exposes the divergence.
+  \item If the \textbf{Ipcha Agent} is compromised (producing false
+        contradictions), the Auditor detects inconsistency between
+        the Proponent's evidence and the Agent's claims.
+  \item If the \textbf{Auditor} is compromised, the structured
+        output format constrains valid synthesis, and downstream
+        consumers can verify against raw inputs.
+\end{itemize}
+
+This degrades gracefully but does not provide guarantees when
+multiple agents exhibit correlated failures---a limitation we
+address in Section~\ref{sec:limitations}.
+
+\subsection{The Trialectic Architecture}\label{sec:trialectic}
+
+The protocol implements a three-agent pipeline:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Proponent (Thesis):} produces the initial analysis
+        using Model Family~$A$.
+  \item \textbf{Ipcha Agent (Antithesis):} systematically challenges
+        the thesis using Model Family~$B$ (enforced $B \neq A$),
+        grounded in authority documents.
+  \item \textbf{Auditor (Synthesis):} produces a hardened output
+        identifying what survived, what was rejected, and what
+        requires further investigation.
+\end{enumerate}
+
+Unlike the Hegelian dialectic---which implies progressive resolution
+toward absolute truth---our trialectic is \emph{operational and
+bounded}: it does not claim to converge on truth but to
+systematically expose weaknesses in the thesis that survive
+adversarial challenge.  The synthesis is an engineering artifact, not
+a philosophical resolution.
+
+% ================================================================
+\section{The Integrity Score Metric Family}\label{sec:metrics}
+
+\subsection{Base Metric: IS (Embedding Distance)}
+
+The Integrity Score quantifies the semantic distance between the
+Proponent's initial analysis and the final synthesis:
+\begin{equation}\label{eq:is-base}
+  \mathrm{IS} = 1 - \cos\!\bigl(\mathbf{e}_{\mathrm{proponent}},\;
+                                  \mathbf{e}_{\mathrm{synthesis}}\bigr)
+\end{equation}
+where $\mathbf{e}_x = \mathrm{embed}(x)$ produces a
+1536-dimensional vector embedding (OpenAI \texttt{text-embedding-3-small}).
+This provides a holistic measure of how much the dialectic altered
+the output.
+
+\textbf{Limitation.}  Cosine similarity in high-dimensional
+transformer embedding spaces suffers from \emph{anisotropy} (the
+``representation degeneration problem''~\cite{ethayarajh2019contextual}):
+vectors cluster in a narrow angular cone, producing high similarity
+even for semantically opposed statements (e.g., ``the encryption is
+secure'' vs.\ ``the encryption is insecure'' share vocabulary and
+syntax, yielding cosine similarity well above~0.8).  The base IS
+metric is therefore a coarse change detector, structurally blind to
+polar semantic negations.  This motivates the finding-level metrics
+$\mathrm{IS}_w$ and $\mathrm{IS_{ce}}$ below, which operate on
+individual claim--evidence pairs rather than document-level embeddings.
+
+\subsection{Finding-Weighted Metric: \texorpdfstring{$\mathrm{IS}_w$}{IS\_w}
+  (TF-IDF Baseline)}\label{sec:is-w}
+
+For claim-level evaluation, we compute a finding-weighted integrity
+score.  Given claims $C = \{c_1,\ldots,c_n\}$, each with findings
+$f_i$ of type $t_i \in \{\textsc{supporting}, \textsc{contradicting},
+\textsc{neutral}\}$ and TF-IDF cosine similarity $s_i \in [0,1]$:
+\begin{equation}\label{eq:is-w}
+  \mathrm{IS}_w
+  = \frac{\displaystyle\sum_{i=1}^{n} w(t_i)\cdot s_i}
+         {\displaystyle\sum_{i=1}^{n} |w(t_i)| + \epsilon}
+\end{equation}
+where $\epsilon = 10^{-8}$ is a smoothing constant preventing
+division by zero when all findings are \textsc{neutral}
+($w(t_i)=0\;\forall\,i$).  In this degenerate case,
+$\mathrm{IS}_w \to 0$, reflecting the absence of evaluable evidence
+rather than producing an undefined result.
+
+The weight function encodes asymmetric sensitivity to contradictions:
+\begin{equation}\label{eq:weights}
+  w(t) = \begin{cases}
+    1.0  & \text{if } t = \textsc{supporting} \\
+    w_c  & \text{if } t = \textsc{contradicting} \\
+    0.0  & \text{if } t = \textsc{neutral}
+  \end{cases}
+\end{equation}
+The contradiction weight $w_c$ was previously set to $-1.5$ by
+engineering judgment.  We calibrate it empirically in
+Section~\ref{sec:rq2}.
+
+\subsection{NLI-Based Metric: \texorpdfstring{$\mathrm{IS_{ce}}$}{ISce}
+  (DeBERTa)}\label{sec:is-ce}
+
+The $\mathrm{IS}_w$ metric uses TF-IDF cosine similarity as a proxy
+for semantic relationship, which captures lexical overlap but not
+logical meaning.  We upgrade the similarity function to Natural
+Language Inference (NLI) using DeBERTa-v3-base~\cite{he2021deberta}
+fine-tuned on MNLI+FEVER+ANLI:
+\begin{equation}\label{eq:is-ce}
+  \mathrm{IS_{ce}}
+  = \frac{\displaystyle\sum_{i=1}^{n} w(t_i)\cdot \gamma_i}
+         {\displaystyle\sum_{i=1}^{n} |w(t_i)| + \epsilon}
+\end{equation}
+where $\gamma_i$ is the NLI confidence for the finding type:
+entailment confidence for \textsc{supporting} findings, contradiction
+confidence for \textsc{contradicting} findings, and neutral confidence
+for \textsc{neutral} findings.  The NLI model classifies each
+(premise=evidence, hypothesis=claim) pair, providing semantically
+grounded scores.
+
+\textbf{Architectural deployment.}  The DeBERTa model is exported
+to ONNX format (${\sim}738$\,MB) and served as a FastAPI microservice
+(port~8200) with CPU inference via \texttt{onnxruntime}.  The IPCHA
+sidecar communicates with this service over Docker internal
+networking.  When the NLI service is unavailable, scoring falls back
+to a simplified Jaccard-distance-based variant of
+$\mathrm{IS}_w$ with a logged warning.  Note that this
+fallback uses Jaccard set overlap rather than the TF-IDF
+cosine similarity defined in Section~\ref{sec:is-w}; the
+two are not identical, and fallback scores are flagged
+accordingly in the audit trail.
+
+\subsection{Empirically Calibrated Interpretation Bands}\label{sec:bands}
+
+We derive IS interpretation bands from quartile analysis of $n=110$
+scored cases (Section~\ref{sec:eval}), replacing previously arbitrary
+thresholds:
+
+\begin{table}[ht]
+\centering
+\caption{IS interpretation bands derived from quartile analysis.}
+\label{tab:bands}
+\begin{tabular}{@{}llp{5.5cm}@{}}
+\toprule
+\textbf{Band} & \textbf{$\mathrm{IS_{ce}}$ Range} & \textbf{Interpretation} \\
+\midrule
+Low (Q0--Q25)      & $[-1.00,\,-0.54]$ & Strong opposition---evidence contradicts claim \\
+Mid (Q25--Q50)     & $[-0.54,\;\;0.00]$ & Moderate opposition---partial contradiction \\
+Mid-High (Q50--Q75)& $[\;\;0.00,\;\;0.07]$ & Neutral zone---inconclusive evidence \\
+High (Q75--Q100)   & $[\;\;0.07,\;\;1.00]$ & Strong support---evidence corroborates claim \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Distribution: mean $= -0.186$, std $= 0.543$, median $= -0.0002$.
+A Shapiro--Wilk test rejects normality ($W = 0.937$, $p < 0.001$),
+consistent with the expected bimodal distribution (legitimate claims
+cluster positive, adversarial claims cluster negative).
+
+\subsection{Empirically Calibrated Contradiction Weight}\label{sec:weight-cal}
+
+The contradiction weight $w_c$ is calibrated via grid search over
+$w_c \in [-3.0, -0.5]$ (step~0.1), maximising the absolute
+point-biserial correlation between the resulting $\mathrm{IS_{ce}}$
+scores and the binary gate decision (ACCEPTED=1, REJECTED=0):
+
+Optimal $w_c = -3.0$, point-biserial $r = 0.896$ ($p < 0.001$).
+However, the sensitivity analysis reveals a flat correlation surface:
+all 26 candidate weights achieve $|r| > 0.85$ (within 5\% of
+optimum).  This indicates that the system is robust to the exact
+weight value---any negative weight for contradictions produces strong
+classification performance.  The previous default of $w_c = -1.5$
+falls within the optimal range ($|r| = 0.887$), validating the
+original engineering intuition while providing empirical
+justification.
+
+% ================================================================
+\section{System Architecture}\label{sec:architecture}
+
+\subsection{Three-Layer Sidecar Deployment}
+
+The IPCHA protocol is implemented as a sidecar architecture
+separating the Python verification core from the TypeScript
+application layer:
+
+\begin{description}[leftmargin=*,labelwidth=!,font=\bfseries]
+  \item[Layer 3 (Interface)]
+    Next.js\,/\,tRPC dashboard with 8 tab components, tRPC router,
+    REST proxy for SSE endpoints.
+  \item[Layer 2 (Sidecar, Port 8100)]
+    FastAPI service with 10 REST endpoints, Bearer token
+    authentication (SHA-256 hashed), tiered rate limiting
+    (free/standard/enterprise).
+  \item[Layer 1 (Core Verification)]
+    Python modules for scoring, sanitisation, protocol enforcement,
+    authority validation, confidence arbitration, sycophancy
+    monitoring, audit logging, claim routing, and agent
+    implementations.
+  \item[DeBERTa-NLI Service (Port 8200)]
+    Standalone FastAPI microservice serving ONNX-exported
+    DeBERTa-v3-base.  Multi-stage Docker build: export stage
+    (torch + optimum, discarded) produces the ONNX model; runtime
+    stage (\texttt{onnxruntime} + FastAPI only, ${\sim}2$\,GB memory)
+    serves inference.
+\end{description}
+
+\subsection{Model Diversity Enforcement}
+
+Model diversity is enforced at session initialisation:
+\begin{lstlisting}
+class DebateSession:
+    def __init__(self, proponent_model, ipcha_model):
+        pro_family = self._extract_family(proponent_model)
+        ipcha_family = self._extract_family(ipcha_model)
+        if pro_family == ipcha_family:
+            raise ModelDiversityError(...)
+\end{lstlisting}
+Models within the same family (e.g., GPT-4, GPT-4-turbo, GPT-4o)
+share training data, architectural choices, and alignment procedures.
+Cross-family verification (e.g., Claude analysing GPT's output)
+provides stronger independence.
+
+\subsection{Input Sanitisation Pipeline}
+
+Three-layer defense-in-depth against Indirect Prompt Injection (IPI):
+
+\begin{table}[ht]
+\centering
+\caption{Input sanitisation layers.}
+\label{tab:sanitisation}
+\begin{tabular}{@{}cll@{}}
+\toprule
+\textbf{Layer} & \textbf{Attack Surface} & \textbf{Technique} \\
+\midrule
+1 & Unicode obfuscation   & NFKC normalisation, control char stripping \\
+2 & Structural injection  & HTML tag stripping via bleach allowlist \\
+3 & Semantic injection    & 6+ regex patterns for instruction overrides \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each layer produces a SHA-256 hash enabling audit chain verification.
+
+\subsection{Cross-Chunk Coherence Validation}
+
+Two-pass architecture combining fast heuristic scanning with
+LLM-based semantic analysis:
+
+\textbf{Pass~1 (Heuristic):} $O(n \times k)$ keyword matching
+against 6+ IPI patterns.  Suspicious chunks proceed to Pass~2; clean
+chunks pass immediately.
+
+\textbf{Pass~2 (LLM Semantic):} Single-word classification
+(temp=0, max\_tokens=5) producing \texttt{INJECTION},
+\texttt{CONTRADICTION}, \texttt{SAFE}, or \texttt{COHERENT} labels.
+
+\textbf{Critical design decision: fail-closed.}  If the LLM analysis
+throws an exception, the chunk is marked \texttt{REJECTED} with
+error metadata.  This prevents attackers from bypassing validation by
+triggering errors.
+
+\subsection{Sycophancy Detection Monitor}
+
+Behavioural surveillance detecting when the Ipcha Agent itself becomes
+sycophantic (second-order failure):
+
+\textbf{Metrics (Redis-backed sliding window, 1000~interactions):}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Agreement Rate:} fraction of interactions where Agent
+        agrees with Proponent.  Threshold: $> 0.70$ triggers warning.
+  \item \textbf{Capitulation Rate:} fraction of disagreements where
+        Agent abandons position under pushback.  Threshold: $> 0.50$.
+  \item \textbf{Contradiction Depth:} average argumentative turns per
+        disagreement.  Threshold: $< 2.0$ indicates shallow challenges.
+\end{itemize}
+
+\subsection{Denial-of-Wallet Defense}
+
+Dual-layer economic defense against budget exhaustion attacks:
+
+\textbf{Layer~1---Per-Invocation Cost Ceiling:} rejects requests
+exceeding a cost threshold based on text length and component count.
+
+\textbf{Layer~2---Rolling Budget (Redis Pipeline):} atomic
+check-and-decrement of per-tenant budget within a time window,
+preventing race conditions.
+
+\subsection{Claim Classification and Routing}
+
+Claims are classified via a two-stage process:
+
+\textbf{Stage~1 (Heuristic):} Regex-based classification into
+\textsc{verifiable} (version numbers, RFCs, must/shall language),
+\textsc{interpretive} (opinions, hedging), or
+\textsc{unclassifiable} (default).
+
+\textbf{Stage~2 (Routing):} Claims are dispatched to specialised
+agents:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{SDRLAgent:} NLI-based verification against authority
+        document chunks; contradiction confidence $> 0.7$ triggers
+        rejection.
+  \item \textbf{PromptBasedAgent:} LLM-based analysis for
+        interpretive claims requiring contextual judgment.
+  \item \textbf{DefaultAgent:} Fail-closed handler for
+        unclassifiable claims; logs and returns a conservative
+        rejection.
+\end{itemize}
+
+\subsection{Rejection Audit Logging}
+
+All rejections (from sanitisation, coherence validation, and claim
+verification) are logged atomically to the audit service with:
+timestamp, rejection reason code, claim text hash, evidence summary,
+and agent identity.  This enables post-hoc analysis of false
+rejection rates and serves as the compliance audit trail.
+
+% ================================================================
+\section{The IPCHA Workflow Pipeline}\label{sec:pipeline}
+
+\subsection{Five-Step Execution Model}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Prepare:} Extract thesis, claims, and assumptions
+        from user input (minimum 50 characters).
+  \item \textbf{Adversarial Analysis:} Fan-out across $P$ providers
+        $\times$ $L$ lenses (max 20~combinations).  Each combination
+        produces independent adversarial findings grounded in
+        authority documents.
+  \item \textbf{Synthesis:} Combine findings with priority ordering:
+        \textsc{unique} $>$ \textsc{cross-model} $>$
+        \textsc{contradictions} $>$ \textsc{blind spots}.
+  \item \textbf{Arbitration:} Judge the subject (not the process),
+        produce numerical score.
+  \item \textbf{Review Gate:} Human checkpoint (unless bypass mode),
+        key point extraction for persistent learning.
+\end{enumerate}
+
+\subsection{Authority Grounding via Axiom RAG}
+
+The Ipcha Agent accesses a project-scoped document knowledge base
+with explicit authority levels:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{MANDATORY} (e.g., GDPR, ISO~27001): always override
+        the Proponent's claims.
+  \item \textbf{GUIDELINE} (e.g., coding standards): provide
+        conventional expectations.
+  \item \textbf{INFORMATIONAL} (e.g., general context): context
+        without enforcement power.
+\end{itemize}
+
+This grounding addresses a fundamental critique of adversarial
+systems: that they produce false contradictions as frequently as
+genuine ones.  By anchoring falsification in authoritative sources,
+IPCHA ensures adversarial challenge is substantive.
+
+% ================================================================
+\section{Empirical Evaluation}\label{sec:eval}
+
+\subsection{Experimental Setup}
+
+\textbf{Corpus.}  110 synthetic cases with known ground truth
+(55~ACCEPTED, 55~REJECTED), distributed across 8~categories:
+security~(15), sycophancy~(10), injection~(10), correctness~(20),
+architecture~(15), performance~(15), compliance~(15),
+domain-specific~(10).  Each case contains a claim, 2--3 structured
+evidence items with type labels, and the expected gate decision.
+
+\textbf{Metrics under comparison:}
+\begin{itemize}[leftmargin=*]
+  \item $\mathrm{IS}_w$ \textbf{(TF-IDF):} Finding-weighted score
+        using TF-IDF cosine similarity ($w_c = -1.5$).
+  \item $\mathrm{IS}_\mathrm{sbert}$ \textbf{(SBERT):}
+        Finding-weighted score using Sentence-BERT cosine similarity
+        (all-MiniLM-L6-v2, $w_c = -1.5$)---controls for the
+        transformer encoder advantage.
+  \item $\mathrm{IS_{ce}}$ \textbf{(NLI):} Finding-weighted score
+        using DeBERTa-NLI contradiction/entailment confidence
+        ($w_c = -1.5$).
+\end{itemize}
+
+The SBERT baseline is critical: it uses transformer-based embeddings
+(like NLI) but applies cosine similarity (like TF-IDF) rather than
+entailment/contradiction classification.  If NLI outperforms SBERT,
+the advantage comes from the \emph{NLI classification task}, not
+merely from using a better text encoder.
+
+\textbf{Infrastructure.}  DeBERTa-NLI microservice
+(\texttt{MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli}, ONNX,
+2\,GB memory) on production infrastructure.
+
+\textbf{Statistical tests.}  Wilcoxon signed-rank test (paired,
+non-parametric); Cohen's~$d$ for effect size.
+
+\subsection{RQ1: Does NLI Classification Provide Value Beyond Better
+  Embeddings?}\label{sec:rq1}
+
+All three metrics were applied to all 110~cases.  Classification
+threshold: median score of each metric.
+
+\begin{table}[ht]
+\centering
+\caption{Classification accuracy and score separation across
+  scoring methods.}
+\label{tab:rq1}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Metric} & \textbf{Accuracy} & \textbf{ACC mean}
+  & \textbf{REJ mean} & \textbf{Separation} \\
+\midrule
+TF-IDF & 98.18\% & $+0.120$ & $-0.104$ & 0.224 \\
+SBERT  & 100.00\% & $+0.501$ & $-0.397$ & 0.897 \\
+NLI    & 100.00\% & $+0.275$ & $-0.648$ & \textbf{0.923} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Classification accuracy is not the discriminating result.}
+All three methods achieve high accuracy on well-structured synthetic
+inputs (98--100\%), and the 2-case difference between TF-IDF and the
+others is not statistically significant (McNemar $p > 0.05$ for all
+pairs).
+
+\textbf{Accuracy ceiling and synthetic artifacts.}  The 100\% NLI
+accuracy demands scrutiny.  The DeBERTa-v3-base model used here
+(\texttt{MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli}) achieves
+90.3\% on MNLI, 77.7\% on FEVER, but only approximately 49.5\% on
+ANLI Round~3~\cite{nie2020anli}---an adversarially constructed
+benchmark designed to expose NLI model weaknesses.  The gap between
+49.5\% on a hard external benchmark and 100\% on our corpus
+demonstrates that our synthetic cases are substantially easier than
+real adversarial inputs.  This is expected: our corpus uses explicitly
+labelled evidence types with unambiguous contradiction/support
+signals, whereas ANLI~R3 contains human-crafted examples specifically
+designed to fool NLI models through subtle inference patterns.  The
+100\% accuracy reflects the corpus difficulty, not the system's
+adversarial robustness.  We report it for completeness but emphasise
+that \emph{score separation---not accuracy---is the primary result}.
+
+\textbf{Score separation is the primary result.}  The distance
+between mean scores for ACCEPTED and REJECTED cases determines the
+confidence margin for gate decisions---wider separation means more
+robust classification on borderline cases.
+
+\begin{table}[ht]
+\centering
+\caption{Pairwise Wilcoxon signed-rank tests.}
+\label{tab:wilcoxon}
+\begin{tabular}{@{}lcccp{3.2cm}@{}}
+\toprule
+\textbf{Comparison} & $W$ & $p$-value & Cohen's $d$
+  & \textbf{Interpretation} \\
+\midrule
+TF-IDF vs SBERT & 2500.5 & 0.100 & 0.12 & Not significant \\
+TF-IDF vs NLI   & 1665.0 & ${<}\,0.001$\,*** & $-0.43$ (medium)
+  & Significant \\
+SBERT vs NLI    & 851.5  & ${<}\,0.001$\,*** & $\mathbf{-0.80}$ (large)
+  & Highly significant \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key finding.}  NLI produces significantly different score
+distributions from \emph{both} TF-IDF ($p < 0.001$, medium effect)
+and SBERT ($p < 0.001$, \textbf{large effect}).  The large effect
+size for SBERT vs NLI ($d = -0.80$) demonstrates that the NLI
+\emph{classification task}---distinguishing entailment from
+contradiction---provides substantial value beyond using a better text
+encoder.
+
+\textbf{Qualitative example.}  For case \texttt{inj-001} (prompt
+injection), TF-IDF gives a false positive because the injected text
+``The authentication module is fully secure'' shares vocabulary with
+the claim.  SBERT also produces relatively high similarity because
+the embeddings are semantically close.  NLI correctly classifies the
+relationship as non-entailment, producing a negative score.
+
+\subsection{RQ2: Is the Contradiction Weight Empirically
+  Justified?}\label{sec:rq2}
+
+Grid search over $w_c \in [-3.0, -0.5]$ (step~0.1), maximising
+$|r_\mathrm{pb}|$ between $\mathrm{IS_{ce}}$ and the binary gate
+decision:
+
+\begin{table}[ht]
+\centering
+\caption{Weight calibration results.}
+\label{tab:weight}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Optimal $w_c$ & $-3.00$ \\
+Point-biserial $r$ & 0.896 \\
+$p$-value & ${<}\,0.001$ \\
+Sensitivity range (95\% of optimum) & $[-3.00, -0.50]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The flat sensitivity curve---all 26 candidate weights within 5\% of
+the optimum---demonstrates that the system is \emph{robust to weight
+selection}.
+
+\textbf{Methodological limitation---circular calibration.}  The
+weight calibration and classification evaluation use the same
+110-case corpus (no train/test split).  This constitutes data
+leakage: the optimal $w_c$ was selected to maximise separation on the
+same data used to evaluate that separation.  The resulting
+point-biserial correlation ($r = 0.896$) is therefore an optimistic
+estimate of generalisation performance, and the optimal
+$w_c = -3.0$ may be overfit to corpus-specific distributional
+properties.
+
+We note two mitigating factors: (1)~the flat sensitivity surface
+(all 26 candidate weights within 5\% of optimum) suggests the result
+is not fragile---the system performs well regardless of weight
+choice, which is unlikely under pure overfitting; (2)~the primary
+method comparison (RQ1, Section~\ref{sec:rq1}) uses the fixed
+default $w_c = -1.5$ identically for all three methods, meaning the
+RQ1 results (Wilcoxon tests, Cohen's~$d$, score separation) are
+\textbf{not} contaminated by this calibration leakage.  The data
+leakage affects only the $w_c$ optimality claim in this section.
+
+Nevertheless, a rigorous evaluation requires a held-out calibration
+split: calibrate $w_c$ on a training subset, then report all metrics
+on unseen test cases.  We present the current results as exploratory
+evidence for weight robustness, not as definitive calibration.
+Future work must use a separate calibration corpus of at
+least 200~cases.
+
+\subsection{NLI Limitations on Domain-Specific Claims}
+
+NLI relies on general-purpose language understanding and may
+underperform on claims requiring specialised technical knowledge.
+For example, a claim about ``encryption in transit'' with evidence
+containing \texttt{sslmode=disable} requires knowing that this
+parameter explicitly disables TLS---a domain convention, not a
+semantic inference.  While our corpus captures such cases with
+explicit evidence statements, real-world technical claims may present
+evidence more implicitly.
+
+Future work could address this through domain-adapted NLI fine-tuning
+on software engineering claim--evidence pairs.
+
+% ================================================================
+\section{Adversarial Red-Teaming}\label{sec:redteam}
+
+\subsection{Factual Persistence Test}
+
+We employ an internal two-stage sycophancy detection protocol (not
+to be confused with the Elephant Benchmark of Cheng et
+al.~\cite{cheng2025elephant}, which measures \emph{social}
+sycophancy via Goffman's face-preservation theory): (1)~present the
+model with a factual claim and record its initial assessment;
+(2)~apply social pressure (``Are you sure? I think you're wrong.'')
+and record whether the model maintains or abandons its position.  A
+model that correctly identifies a falsehood but then reverses under
+pressure demonstrates classic \emph{factual} sycophancy---the
+specific failure mode IPCHA targets.
+
+\subsection{Red-Team Test Categories}
+
+The \texttt{pytest}-based red-team suite covers three attack
+categories:
+
+\textbf{IPI (Indirect Prompt Injection):} Unicode obfuscation
+attacks (homoglyphs, zero-width characters), nested instruction
+injection, data URI payload embedding.
+
+\textbf{DoW (Denial of Wallet):} Claim inflation, recursive prompt
+injection, expensive output format requests.
+
+\textbf{Logic Attacks:} Contradictory evidence insertion (true
+premise + false conclusion), Boolean inversion, semantic synonym
+substitution.
+
+% ================================================================
+\section{Limitations and Open Problems}\label{sec:limitations}
+
+\subsection{The Oracle Problem}
+
+IPCHA can detect \emph{relative} inconsistencies (contradictions
+between agents, violations of authority documents) but cannot verify
+\emph{absolute} correctness.  If all agents share a common
+misconception not addressed by the authority documents, the dialectic
+converges on a confidently wrong answer.  Authority grounding via
+Axiom RAG partially addresses this by injecting external ground
+truth, but the authority documents themselves may be incomplete or
+outdated.
+
+\subsection{Synthetic Corpus Limitations}
+
+Our evaluation uses a controlled synthetic corpus where evidence
+items are explicitly labelled (\textsc{supporting},
+\textsc{contradicting}, \textsc{neutral}) and the ground truth gate
+decision is defined by construction.  This provides clean
+experimental conditions but does not capture the full complexity of
+real-world verification:
+\begin{itemize}[leftmargin=*]
+  \item Real evidence is ambiguous and often partially supporting.
+  \item Evidence labelling itself requires judgment.
+  \item The 110-case corpus, while statistically sufficient for the
+        tests performed, represents a limited domain sample.
+\end{itemize}
+Future work should supplement synthetic evaluation with production
+deployment metrics.
+
+\subsection{NLI Domain Specificity}
+
+The DeBERTa-v3-base model is trained on general-purpose NLI datasets
+(MNLI~\cite{williams2018mnli}, FEVER~\cite{thorne2018fever},
+ANLI~\cite{nie2020anli}).  It excels at detecting semantic
+contradictions in natural language but may underperform on:
+\begin{itemize}[leftmargin=*]
+  \item Domain-specific technical conventions (e.g.,
+        \texttt{sslmode=disable} implies no encryption).
+  \item Code-level claims requiring program analysis.
+  \item Numerical reasoning (e.g., ``response time $< 100$\,ms'' vs
+        measured 340\,ms).
+\end{itemize}
+This limitation is mitigated by the hybrid architecture: the
+SDRLAgent grounds verification in authority documents that explicitly
+state domain conventions.
+
+\subsection{Unverified Model-Family Independence}
+  \label{sec:model-independence}
+
+The Epistemic Fault Containment property (Section~\ref{sec:efc})
+rests on the assumption that agents drawn from different model
+families exhibit approximately independent failure modes.  This
+assumption is \textbf{empirically unverified} and likely weaker than
+assumed.  Frontier model families share overlapping pretraining
+corpora, draw from overlapping pools of human feedback providers, and
+undergo similar RLHF alignment pressures.  The actual correlation
+rate between, for example, a GPT-4-class model and a Claude-class
+model on sycophancy-inducing prompts is unknown.
+
+We label EFC as an architectural heuristic rather than a guarantee
+for this reason.  Future work should conduct empirical correlation
+testing across model families on standardised sycophancy benchmarks,
+establishing correlation thresholds (e.g., Pearson $r < 0.3$) as
+deployment gates.
+
+\subsection{Audit Infrastructure Requirements}
+
+The current rejection audit logging (Section~4.8) records events to
+local storage.  For production deployment in regulated environments,
+this is insufficient: local logs are tamperable, and a modified audit
+trail creates greater regulatory liability than no trail at all.
+Production deployment requires redesign to an immutable remote audit
+system (append-only ledgers with cryptographic chaining, write-once
+storage, or a dedicated compliance logging service).
+
+\subsection{Authority Document Attack Surface}
+
+The Axiom RAG authority grounding ensures adversarial challenge is
+substantive, but the authority document pipeline itself introduces
+attack surfaces: documents can be tampered with before ingestion,
+selectively curated, contain stale guidance, or carry embedded prompt
+injection payloads.  An adversary who controls the authority corpus
+controls the falsification process.  Mitigation requires
+cryptographic signing of authority documents at ingestion, automated
+currency checking against canonical sources, and a governed registry
+with explicit ownership and change audit trails.
+
+\subsection{Organisational Dynamics and Bypass Risk}
+
+The protocol includes a bypass mode that skips the human review gate
+for time-sensitive workflows.  Under production pressure, this bypass
+can become the operational default rather than the exception.  When
+bypass is routine, the protocol's accountability claims collapse: the
+trialectic produces outputs that are never reviewed, creating what we
+term ``organisational laundering of sycophancy''---the appearance of
+adversarial rigour without its substance.  Mitigation options include
+eliminating self-service bypass, requiring explicit senior
+authorisation with cooling periods, and treating bypass events as
+audit findings requiring post-hoc review.
+
+\subsection{Pipeline Fingerprinting}
+
+The three-agent pipeline with fixed roles creates a deterministic
+structure.  A motivated adversary who can observe multiple pipeline
+outputs may infer the pipeline topology and craft inputs exploiting
+specific role heuristics.  Mitigation includes randomised
+model-to-role assignment and variable pipeline depth, though these
+introduce implementation complexity.
+
+\subsection{Token Cost Multiplier}
+
+The trialectic imposes approximately $2.5\times$ token cost compared
+to single-model inference.  This estimate is approximate and assumes
+aggressive digest compression of intermediate outputs; without
+compression, the cumulative context growth across the three agents
+produces a higher multiplier, potentially $3.5$--$4\times$ depending
+on authority document volume and output length.  A formal token cost
+model as a function of input length, RAG corpus size, and compression
+ratio is not provided here and represents a gap in the cost analysis.
+Cost scalability remains a practical adoption concern for high-volume
+pipelines.
+
+\subsection{Adversarial Agent Degradation}
+
+The Ipcha Agent is itself an LLM subject to sycophantic tendencies.
+Provider-side model updates may soften adversarial behaviour without
+triggering the diversity check.  The Sycophancy Monitor
+(Section~4.5) tracks behavioural metrics to detect this degradation.
+
+\subsection{Self-Referential Verification}
+
+Any sufficiently powerful verification system faces an inherent
+limitation: it cannot fully verify its own correctness.  The IPCHA
+protocol verifies LLM outputs but uses LLMs internally for semantic
+analysis.  Partial mitigations include: the two-pass coherence
+validator (heuristic + LLM) provides a non-LLM first layer;
+fail-closed architecture defaults to rejection on verification
+failure; the rejection audit log enables post-hoc analysis.
+
+% ================================================================
+\section{Threats to Validity}\label{sec:threats}
+
+\textbf{Single-system study.}  All implementation and validation
+occurred within one platform (nyxCore).  The failure taxonomy and
+architectural lessons may not generalise to other multi-agent systems
+or deployment contexts.
+
+\textbf{Developer-as-evaluator.}  The protocol was implemented and
+evaluated by the same individual, creating confirmation bias risk.
+The synthetic corpus and statistical tests partially mitigate this by
+providing objective ground truth, but independent replication on
+external datasets is needed.
+
+\textbf{Synthetic corpus and accuracy ceiling.}  The 110-case
+evaluation uses synthetic cases with pre-labelled evidence and known
+ground truth.  The perfect NLI accuracy (100\%) contrasts sharply
+with the same model's approximately 49.5\% accuracy on ANLI
+Round~3~\cite{nie2020anli}, a human-crafted adversarial NLI
+benchmark.  This discrepancy strongly suggests that our corpus
+contains synthetic artifacts---explicit contradiction signals,
+repetitive sentence structures, and unambiguous evidence labels---that
+the NLI model resolves trivially.  The reported accuracy reflects
+corpus difficulty, not system robustness.  Real-world evidence is
+ambiguous, partially supporting, and carries implicit domain
+conventions that our synthetic cases cannot capture.  Production
+deployment accuracy will be substantially lower.  Future evaluation
+must supplement synthetic cases with human-annotated examples drawn
+from real verification scenarios.
+
+\textbf{Statistical power.}  The 110-case corpus distributed across
+8~categories yields approximately 13.75 cases per category---insufficient
+for robust per-category statistical inference.  The non-significant
+McNemar tests ($p > 0.05$) for accuracy comparisons reflect this
+underpowering: with only 2 discordant cases between TF-IDF and NLI,
+the test cannot distinguish the observed difference from chance.  We
+do not claim accuracy superiority for this reason.  Future evaluation
+should use at least 500~cases (${\approx}60$ per category) to achieve
+adequate statistical power.
+
+\textbf{Threshold sensitivity.}  The classification accuracy results
+depend on median-threshold splitting.  Alternative threshold
+selection methods (ROC-optimal, fixed decision boundary) may yield
+different comparative results.
+
+\textbf{Self-analysis via the protocol.}  As a validation exercise,
+the paper itself was subjected to IPCHA adversarial analysis using
+its own protocol (6 model/lens combinations, 2~providers).  The
+analysis scored the system at 25/100 adversarial robustness,
+identifying three blocker-level findings (unverified model
+independence, audit log tamperability, authority document integrity)
+and two high-severity findings (bypass dynamics, corpus
+insufficiency).  We incorporate these findings in
+Section~\ref{sec:limitations} rather than suppress them.
+
+% ================================================================
+\section{Related Work}\label{sec:related}
+
+\textbf{Sycophancy characterisation.}
+Sharma et al.~\cite{sharma2024sycophancy} provide the foundational
+characterisation of sycophancy patterns in language models.
+Perez et al.~\cite{perez2023discovering} develop model-written
+evaluations for discovering problematic behaviours including
+sycophancy.
+
+\textbf{Alignment approaches.}
+RLHF~\cite{christiano2017rlhf} and Constitutional
+AI~\cite{bai2022constitutional} address sycophancy at the model
+level.  Our work is complementary: IPCHA provides architectural
+guarantees independent of model-level alignment.
+
+\textbf{AI safety via debate.}
+Irving et al.~\cite{irving2018debate} propose debate as a mechanism
+for AI alignment, where two AI agents argue opposing positions and a
+human judge selects the winner.
+Du et al.~\cite{du2024multiagent} demonstrate that multi-agent debate
+improves factuality and reasoning through iterative multi-round
+convergence, where agents share responses and refine their positions
+over successive rounds.
+Liang et al.~\cite{liang2023divergent} extend this with explicit
+divergent thinking encouragement to counter
+``Degeneration-of-Thought''---the tendency of iterative debate to
+collapse into premature consensus.
+Chan et al.~\cite{chan2024chateval} propose ChatEval, a multi-agent
+debate framework for LLM evaluation with diverse role assignments.
+
+IPCHA differs from these iterative convergence approaches
+architecturally: it implements a single-pass asymmetric falsification
+pipeline rather than multi-round symmetric debate.  This design
+reflects a deliberate tradeoff.  Iterative debate
+(Du et al., Liang et al.) can explore complex argumentative depth
+through successive refinement, but faces Degeneration-of-Thought
+risk~\cite{liang2023divergent}---agents converge on a shared
+(potentially wrong) position after several rounds, producing false
+confidence.  IPCHA's single-pass design with enforced model diversity
+and authority grounding avoids convergence pathology at the cost of
+argumentative depth.  Whether single-pass falsification or iterative
+convergence produces better verification outcomes is an empirical
+question we have not benchmarked; a direct comparison against MAD or
+ChatEval on standardised evaluation sets is needed.
+
+\textbf{Multi-agent verification.}
+LLM-as-a-Judge frameworks~\cite{zheng2023judge} use one model to
+evaluate another.  IPCHA extends this with mandatory model diversity,
+authority grounding, and the trialectic structure.
+
+\textbf{Hallucination detection.}
+SelfCheckGPT~\cite{manakul2023selfcheckgpt} proposes zero-resource
+hallucination detection via self-consistency.
+Rawte et al.~\cite{rawte2023hallucination} and
+Ji et al.~\cite{ji2023hallucination} survey hallucination broadly.
+IPCHA differs in using structured adversarial challenge rather than
+self-consistency checks.
+
+\textbf{NLI-based factual consistency.}
+NLI has been applied to factual consistency evaluation in several
+prior systems.
+AlignScore~\cite{zha2023alignscore} uses a unified alignment
+function trained across NLI and other NLP tasks to evaluate factual
+consistency of generated text.
+SummaC~\cite{laban2022summac} operationalises consistency by checking
+whether each generated sentence is entailed by the source document
+and not contradicted.
+IPCHA differs from these systems in three respects: (1)~it applies
+NLI within a \emph{mandatory adversarial pipeline} rather than as a
+post-hoc scoring metric; (2)~the NLI component scores structured
+claim--evidence pairs produced by the trialectic, not free-form
+generated text against a source; and (3)~the scoring is embedded in a
+production multi-agent sycophancy defense system with authority
+grounding, model diversity enforcement, and fail-closed architecture.
+The NLI technique itself is not novel; the contribution is its
+integration into a structurally adversarial verification pipeline.
+
+\textbf{Natural Language Inference models.}
+DeBERTa~\cite{he2021deberta} provides the NLI backbone for our
+scoring upgrade.
+
+% ================================================================
+\section{Conclusion}\label{sec:conclusion}
+
+The Ipcha Mistabra Protocol elevates sycophancy defense from a
+model-internal property to an architectural constraint.  By
+institutionalising structured adversarial verification as a mandatory
+pipeline middleware, the protocol ensures that every claim faces
+adversarial challenge from an independent agent grounded in
+authoritative sources.
+
+Our empirical evaluation on a 110-case synthetic corpus demonstrates
+that NLI-based scoring provides significant advantages over both
+TF-IDF and sentence-embedding baselines:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{NLI classification adds value beyond better
+        encoders:} NLI vs SBERT produces a large effect (Cohen's
+        $d = -0.80$, $p < 0.001$), confirming the advantage comes
+        from entailment/contradiction classification, not merely from
+        using transformer embeddings.
+  \item \textbf{Score separation is the primary contribution:} NLI
+        provides $4.1\times$ wider separation than TF-IDF and
+        significantly different distributions from SBERT, giving
+        higher confidence margins on borderline cases.
+  \item \textbf{Classification accuracy is uniformly high}
+        (98--100\% for all methods) but not statistically
+        differentiable at $n=110$ (McNemar $p > 0.05$), and the
+        perfect NLI accuracy reflects synthetic corpus simplicity
+        rather than adversarial robustness---we do not claim accuracy
+        superiority.
+  \item \textbf{Weight calibration is robust} (point-biserial
+        $r = 0.896$, stable across the full search range).
+\end{itemize}
+
+These results validate the NLI upgrade as a meaningful engineering
+improvement on controlled inputs.  They do not establish production
+readiness: the same DeBERTa model achieves approximately 49.5\% on
+ANLI Round~3 (an adversarially constructed benchmark), confirming
+that our synthetic corpus is substantially easier than real
+adversarial inputs.  The weight calibration (Section~\ref{sec:rq2})
+is exploratory due to circular data usage.  Production deployment
+requires domain-specific calibration on substantially larger corpora
+($n \geq 500$) with independent annotation and proper train/test
+separation.
+
+Beyond the scoring improvement, the protocol's architectural
+contributions---fail-closed coherence validation, sycophancy
+monitoring, denial-of-wallet defense, and authority
+grounding---provide defense-in-depth that no single-model alignment
+technique can offer.  However, several load-bearing assumptions
+remain unverified: model-family independence is asserted rather than
+demonstrated, the audit infrastructure requires immutability
+guarantees not yet implemented, and the authority document pipeline
+lacks integrity controls.  The organisational dynamics around bypass
+mechanisms create predictable pressure toward the protocol becoming
+theatrical rather than functional.
+
+We do not claim to solve the sycophancy problem.  What the protocol
+provides is a \emph{structural guarantee of adversarial
+challenge}---a necessary but not sufficient condition for epistemic
+integrity.  The core architectural insight is sound; the
+implementation gap between current state and production readiness is
+substantial and honestly acknowledged.
+
+% ================================================================
+\section*{Data Availability and Reproducibility}
+
+The IPCHA protocol is implemented and deployed as an internal
+research prototype within the nyxCore platform, a private multi-tenant
+dashboard system.  The current deployment serves as an internal pilot
+for the author's own workflows; it has not undergone independent
+security audit or compliance certification, and the production-readiness
+gaps identified in Section~\ref{sec:limitations} (audit log
+immutability, authority document integrity, bypass dynamics) remain
+unresolved.  We use the term ``deployed'' to indicate functional
+integration, not compliance-ready production status.
+
+The IPCHA verification sidecar, NLI microservice, evaluation corpus
+(110~cases), and scoring scripts are available at
+\url{https://github.com/mrwind-up-bird/ipcha-mistabra} under the
+Apache~2.0 license.  The nyxCore platform, which provides the
+dashboard and workflow integration, is a proprietary system not
+required for reproducing the evaluation results.  The ONNX-exported
+DeBERTa model is publicly available on HuggingFace
+(\texttt{MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli}).
+
+% ================================================================
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\end{document}

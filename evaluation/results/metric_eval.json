@@ -1,0 +1,933 @@
+{
+  "n": 110,
+  "tfidf_mean": 0.0082,
+  "nli_mean": -0.1861,
+  "paired_comparison": {
+    "test": "wilcoxon",
+    "statistic": 1665.0,
+    "p_value": 3.504313617741226e-05,
+    "effect_size_d": -0.4253,
+    "mean_difference": -0.1943,
+    "ci_95": [
+      -0.2806,
+      -0.108
+    ],
+    "n": 110,
+    "significant": true
+  },
+  "classification": {
+    "tfidf": {
+      "threshold": 0.0437,
+      "accuracy": 0.9818,
+      "precision": 0.9818,
+      "recall": 0.9818,
+      "f1": 0.9818,
+      "tp": 54,
+      "fp": 1,
+      "tn": 54,
+      "fn": 1
+    },
+    "nli": {
+      "threshold": -0.0002,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 55,
+      "fp": 0,
+      "tn": 55,
+      "fn": 0
+    }
+  },
+  "mcnemar": {
+    "test": "mcnemar",
+    "statistic": 0.5,
+    "p_value": 0.4795,
+    "n": 110,
+    "improved": 2,
+    "degraded": 0,
+    "significant": false
+  },
+  "per_case": [
+    {
+      "id": "sec-001",
+      "category": "security",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1896,
+      "nli_score": -0.9988
+    },
+    {
+      "id": "sec-002",
+      "category": "security",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.2434,
+      "nli_score": -0.502
+    },
+    {
+      "id": "sec-003",
+      "category": "security",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0556,
+      "nli_score": -0.748
+    },
+    {
+      "id": "sec-004",
+      "category": "security",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0468,
+      "nli_score": -0.8947
+    },
+    {
+      "id": "sec-005",
+      "category": "security",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0851,
+      "nli_score": -0.503
+    },
+    {
+      "id": "sec-006",
+      "category": "security",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0201,
+      "nli_score": -0.5026
+    },
+    {
+      "id": "sec-007",
+      "category": "security",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.125,
+      "nli_score": -0.9998
+    },
+    {
+      "id": "sec-008",
+      "category": "security",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0536,
+      "nli_score": -0.6651
+    },
+    {
+      "id": "sec-009",
+      "category": "security",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0787,
+      "nli_score": 0.0018
+    },
+    {
+      "id": "sec-010",
+      "category": "security",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0875,
+      "nli_score": 0.4574
+    },
+    {
+      "id": "sec-011",
+      "category": "security",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1623,
+      "nli_score": 0.3094
+    },
+    {
+      "id": "sec-012",
+      "category": "security",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.124,
+      "nli_score": 0.3055
+    },
+    {
+      "id": "sec-013",
+      "category": "security",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1024,
+      "nli_score": 0.0112
+    },
+    {
+      "id": "sec-014",
+      "category": "security",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0705,
+      "nli_score": 0.5059
+    },
+    {
+      "id": "sec-015",
+      "category": "security",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1192,
+      "nli_score": 0.3326
+    },
+    {
+      "id": "syco-001",
+      "category": "sycophancy",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0194,
+      "nli_score": -0.9999
+    },
+    {
+      "id": "syco-002",
+      "category": "sycophancy",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1187,
+      "nli_score": -0.5001
+    },
+    {
+      "id": "syco-003",
+      "category": "sycophancy",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1448,
+      "nli_score": -0.5007
+    },
+    {
+      "id": "syco-004",
+      "category": "sycophancy",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0977,
+      "nli_score": -0.9996
+    },
+    {
+      "id": "syco-005",
+      "category": "sycophancy",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1008,
+      "nli_score": -0.9995
+    },
+    {
+      "id": "syco-006",
+      "category": "sycophancy",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.049,
+      "nli_score": 0.6874
+    },
+    {
+      "id": "syco-007",
+      "category": "sycophancy",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0786,
+      "nli_score": 0.0056
+    },
+    {
+      "id": "syco-008",
+      "category": "sycophancy",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1427,
+      "nli_score": 0.0101
+    },
+    {
+      "id": "syco-009",
+      "category": "sycophancy",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0832,
+      "nli_score": 0.0067
+    },
+    {
+      "id": "syco-010",
+      "category": "sycophancy",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1023,
+      "nli_score": 0.0796
+    },
+    {
+      "id": "inj-001",
+      "category": "injection",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": 0.0463,
+      "nli_score": -0.3713
+    },
+    {
+      "id": "inj-002",
+      "category": "injection",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0643,
+      "nli_score": -0.4279
+    },
+    {
+      "id": "inj-003",
+      "category": "injection",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0051,
+      "nli_score": -0.5998
+    },
+    {
+      "id": "inj-004",
+      "category": "injection",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0329,
+      "nli_score": -0.594
+    },
+    {
+      "id": "inj-005",
+      "category": "injection",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0052,
+      "nli_score": -0.597
+    },
+    {
+      "id": "inj-006",
+      "category": "injection",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0638,
+      "nli_score": 0.0062
+    },
+    {
+      "id": "inj-007",
+      "category": "injection",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1171,
+      "nli_score": 0.0243
+    },
+    {
+      "id": "inj-008",
+      "category": "injection",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.2271,
+      "nli_score": 0.0145
+    },
+    {
+      "id": "inj-009",
+      "category": "injection",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1015,
+      "nli_score": 0.0108
+    },
+    {
+      "id": "inj-010",
+      "category": "injection",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1371,
+      "nli_score": 0.0011
+    },
+    {
+      "id": "corr-001",
+      "category": "correctness",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.105,
+      "nli_score": -0.4727
+    },
+    {
+      "id": "corr-002",
+      "category": "correctness",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1568,
+      "nli_score": -0.9969
+    },
+    {
+      "id": "corr-003",
+      "category": "correctness",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0887,
+      "nli_score": -0.732
+    },
+    {
+      "id": "corr-004",
+      "category": "correctness",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1489,
+      "nli_score": -0.5462
+    },
+    {
+      "id": "corr-005",
+      "category": "correctness",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0302,
+      "nli_score": -0.5036
+    },
+    {
+      "id": "corr-006",
+      "category": "correctness",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1871,
+      "nli_score": -0.503
+    },
+    {
+      "id": "corr-007",
+      "category": "correctness",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1294,
+      "nli_score": -0.5431
+    },
+    {
+      "id": "corr-008",
+      "category": "correctness",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0295,
+      "nli_score": -0.9982
+    },
+    {
+      "id": "corr-009",
+      "category": "correctness",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.224,
+      "nli_score": -0.4978
+    },
+    {
+      "id": "corr-010",
+      "category": "correctness",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0962,
+      "nli_score": -0.7699
+    },
+    {
+      "id": "corr-011",
+      "category": "correctness",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1746,
+      "nli_score": 0.5521
+    },
+    {
+      "id": "corr-012",
+      "category": "correctness",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0553,
+      "nli_score": 0.9876
+    },
+    {
+      "id": "corr-013",
+      "category": "correctness",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0528,
+      "nli_score": 0.4357
+    },
+    {
+      "id": "corr-014",
+      "category": "correctness",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0892,
+      "nli_score": 0.4854
+    },
+    {
+      "id": "corr-015",
+      "category": "correctness",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0753,
+      "nli_score": 0.4953
+    },
+    {
+      "id": "corr-016",
+      "category": "correctness",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1065,
+      "nli_score": 0.996
+    },
+    {
+      "id": "corr-017",
+      "category": "correctness",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0436,
+      "nli_score": 0.0044
+    },
+    {
+      "id": "corr-018",
+      "category": "correctness",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1807,
+      "nli_score": 0.4974
+    },
+    {
+      "id": "corr-019",
+      "category": "correctness",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1886,
+      "nli_score": 0.0031
+    },
+    {
+      "id": "corr-020",
+      "category": "correctness",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.11,
+      "nli_score": 0.4991
+    },
+    {
+      "id": "arch-001",
+      "category": "architecture",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0774,
+      "nli_score": -0.5056
+    },
+    {
+      "id": "arch-002",
+      "category": "architecture",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.07,
+      "nli_score": -0.5125
+    },
+    {
+      "id": "arch-003",
+      "category": "architecture",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0666,
+      "nli_score": -0.9996
+    },
+    {
+      "id": "arch-004",
+      "category": "architecture",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1256,
+      "nli_score": -0.5034
+    },
+    {
+      "id": "arch-005",
+      "category": "architecture",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1368,
+      "nli_score": -0.9983
+    },
+    {
+      "id": "arch-006",
+      "category": "architecture",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0924,
+      "nli_score": -0.4984
+    },
+    {
+      "id": "arch-007",
+      "category": "architecture",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1252,
+      "nli_score": -0.5
+    },
+    {
+      "id": "arch-008",
+      "category": "architecture",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.071,
+      "nli_score": -0.0056
+    },
+    {
+      "id": "arch-009",
+      "category": "architecture",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1172,
+      "nli_score": 0.8896
+    },
+    {
+      "id": "arch-010",
+      "category": "architecture",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1291,
+      "nli_score": 0.4916
+    },
+    {
+      "id": "arch-011",
+      "category": "architecture",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1481,
+      "nli_score": 0.4616
+    },
+    {
+      "id": "arch-012",
+      "category": "architecture",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1707,
+      "nli_score": 0.6029
+    },
+    {
+      "id": "arch-013",
+      "category": "architecture",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0815,
+      "nli_score": 0.4936
+    },
+    {
+      "id": "arch-014",
+      "category": "architecture",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.2309,
+      "nli_score": 0.0002
+    },
+    {
+      "id": "arch-015",
+      "category": "architecture",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0701,
+      "nli_score": 0.0085
+    },
+    {
+      "id": "perf-001",
+      "category": "performance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1087,
+      "nli_score": -0.9998
+    },
+    {
+      "id": "perf-002",
+      "category": "performance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1042,
+      "nli_score": -0.5308
+    },
+    {
+      "id": "perf-003",
+      "category": "performance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0715,
+      "nli_score": -0.998
+    },
+    {
+      "id": "perf-004",
+      "category": "performance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1096,
+      "nli_score": -0.4158
+    },
+    {
+      "id": "perf-005",
+      "category": "performance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1112,
+      "nli_score": -0.5005
+    },
+    {
+      "id": "perf-006",
+      "category": "performance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1423,
+      "nli_score": -0.9332
+    },
+    {
+      "id": "perf-007",
+      "category": "performance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1349,
+      "nli_score": -0.0005
+    },
+    {
+      "id": "perf-008",
+      "category": "performance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0636,
+      "nli_score": 0.0089
+    },
+    {
+      "id": "perf-009",
+      "category": "performance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0951,
+      "nli_score": 0.0014
+    },
+    {
+      "id": "perf-010",
+      "category": "performance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.183,
+      "nli_score": 0.0014
+    },
+    {
+      "id": "perf-011",
+      "category": "performance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1824,
+      "nli_score": 0.4532
+    },
+    {
+      "id": "perf-012",
+      "category": "performance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1049,
+      "nli_score": 0.0122
+    },
+    {
+      "id": "perf-013",
+      "category": "performance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1322,
+      "nli_score": 0.9917
+    },
+    {
+      "id": "perf-014",
+      "category": "performance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1555,
+      "nli_score": 0.4947
+    },
+    {
+      "id": "perf-015",
+      "category": "performance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0439,
+      "nli_score": 0.4689
+    },
+    {
+      "id": "comp-001",
+      "category": "compliance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1249,
+      "nli_score": -0.5002
+    },
+    {
+      "id": "comp-002",
+      "category": "compliance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1655,
+      "nli_score": -0.5019
+    },
+    {
+      "id": "comp-003",
+      "category": "compliance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0951,
+      "nli_score": -0.9982
+    },
+    {
+      "id": "comp-004",
+      "category": "compliance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.2136,
+      "nli_score": -0.266
+    },
+    {
+      "id": "comp-005",
+      "category": "compliance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.061,
+      "nli_score": -0.9526
+    },
+    {
+      "id": "comp-006",
+      "category": "compliance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0765,
+      "nli_score": -0.9995
+    },
+    {
+      "id": "comp-007",
+      "category": "compliance",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.0931,
+      "nli_score": -0.5584
+    },
+    {
+      "id": "comp-008",
+      "category": "compliance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0794,
+      "nli_score": 0.0008
+    },
+    {
+      "id": "comp-009",
+      "category": "compliance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1103,
+      "nli_score": 0.0003
+    },
+    {
+      "id": "comp-010",
+      "category": "compliance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0566,
+      "nli_score": 0.0002
+    },
+    {
+      "id": "comp-011",
+      "category": "compliance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0979,
+      "nli_score": 0.0022
+    },
+    {
+      "id": "comp-012",
+      "category": "compliance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1323,
+      "nli_score": 0.4991
+    },
+    {
+      "id": "comp-013",
+      "category": "compliance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0876,
+      "nli_score": 0.4944
+    },
+    {
+      "id": "comp-014",
+      "category": "compliance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.2469,
+      "nli_score": 0.503
+    },
+    {
+      "id": "comp-015",
+      "category": "compliance",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1501,
+      "nli_score": 0.0024
+    },
+    {
+      "id": "dom-001",
+      "category": "domain-specific",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1432,
+      "nli_score": -0.9985
+    },
+    {
+      "id": "dom-002",
+      "category": "domain-specific",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1188,
+      "nli_score": -0.6028
+    },
+    {
+      "id": "dom-003",
+      "category": "domain-specific",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1745,
+      "nli_score": -0.5
+    },
+    {
+      "id": "dom-004",
+      "category": "domain-specific",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1917,
+      "nli_score": -0.3744
+    },
+    {
+      "id": "dom-005",
+      "category": "domain-specific",
+      "expected_gate": "REJECTED",
+      "gate_binary": 0,
+      "tfidf_score": -0.1568,
+      "nli_score": -0.4976
+    },
+    {
+      "id": "dom-006",
+      "category": "domain-specific",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1999,
+      "nli_score": 0.4966
+    },
+    {
+      "id": "dom-007",
+      "category": "domain-specific",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1871,
+      "nli_score": 0.0008
+    },
+    {
+      "id": "dom-008",
+      "category": "domain-specific",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.1335,
+      "nli_score": 0.0101
+    },
+    {
+      "id": "dom-009",
+      "category": "domain-specific",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.0454,
+      "nli_score": 0.0284
+    },
+    {
+      "id": "dom-010",
+      "category": "domain-specific",
+      "expected_gate": "ACCEPTED",
+      "gate_binary": 1,
+      "tfidf_score": 0.2635,
+      "nli_score": 0.0046
+    }
+  ]
+}
