@@ -4,7 +4,7 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![arXiv](https://img.shields.io/badge/arXiv-2026.XXXXX-b31b1b.svg)](https://arxiv.org/)
-[![Academia](https://img.shields.io/badge/Academia-41454A?logo=Academia&logoColor=white)](#)
+[![Academia](https://img.shields.io/badge/Academia-41454A)](#)
 
 ---
 
