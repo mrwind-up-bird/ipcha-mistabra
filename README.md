@@ -102,11 +102,26 @@ docker run -p 8200:8200 ipcha-nli
 
 ### Run the IPCHA Sidecar
 
+Every module imports absolutely as `ipcha.*`, so the package must be importable
+under that name. In Docker this is handled by the Dockerfile (`COPY . ./ipcha/`):
+
 ```bash
-cd sidecar
-pip install -r requirements.txt
-uvicorn api:app --host 0.0.0.0 --port 8100
+docker build -t ipcha-sidecar ./sidecar
+docker run -p 8100:8100 ipcha-sidecar
 ```
+
+To run it directly, expose `sidecar/` as `ipcha` first:
+
+```bash
+pip install -r sidecar/requirements.txt
+ln -s sidecar ipcha
+uvicorn ipcha.api:app --host 0.0.0.0 --port 8100
+```
+
+Only `/health`, `/score`, `/score/opposition`, `/sanitize` and `/arbitrate` work
+without further setup. `/route` needs a `config.yml`, `/sycophancy/metrics` needs
+Redis, `/audit/rejections` needs `DATABASE_URL`, and `/validate` needs an OpenAI
+key — see [`docs/api/API.md`](docs/api/API.md).
 
 ### Run the Evaluation
 
@@ -116,6 +131,19 @@ python run_all.py
 ```
 
 This generates the synthetic corpus, runs all three scoring methods (TF-IDF, SBERT, NLI), and produces the statistical comparison reported in the paper.
+
+## API Integration
+
+Integrating IPCHA into another project? See **[`docs/api/API.md`](docs/api/API.md)** for the full REST reference — every endpoint, parameter, payload and response for both services, plus configuration, integration flows and verified limitations.
+
+A ready-to-run Postman collection is included:
+
+```bash
+newman run docs/api/ipcha-api.postman_collection.json \
+  -e docs/api/ipcha-api.postman_environment.json
+```
+
+Both services also expose their OpenAPI schema at `/openapi.json` and Swagger UI at `/docs`.
 
 ## Key Metrics
 
