@@ -1,0 +1,9 @@
+# Build-only dependencies for the ONNX export stage (Dockerfile stage 1).
+# This stage is discarded in the final image, so nothing here ships at runtime.
+# The CPU wheel index keeps the torch download at ~200 MB instead of ~2.5 GB.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+optimum[onnxruntime]
+transformers
+sentencepiece
+protobuf

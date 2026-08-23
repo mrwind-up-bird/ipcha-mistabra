@@ -9,3 +9,6 @@ scikit-learn
 bleach
 pyyaml
 openai
+# Audit log (/audit/rejections): ipcha.audit.models + the endpoint's inline import
+sqlalchemy
+psycopg2-binary

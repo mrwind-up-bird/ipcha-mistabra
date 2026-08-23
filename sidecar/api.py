@@ -132,6 +132,14 @@ async def sanitize(req: SanitizeRequest):
 async def validate(req: ValidateRequest, request: Request):
     # Accept API key from X-LLM-Api-Key header (injected by Next.js proxy from BYOK)
     api_key = request.headers.get("x-llm-api-key")
+    # The OpenAI client is built in the validator's constructor, outside its
+    # fail-closed try block. Report a missing credential as a configuration
+    # error instead of letting it surface as an opaque 500.
+    if not (api_key or os.getenv("OPENAI_API_KEY")):
+        raise HTTPException(
+            status_code=503,
+            detail="No LLM credentials configured; send X-LLM-Api-Key or set OPENAI_API_KEY",
+        )
     validator = CrossChunkValidator(api_key=api_key, model=req.model or "gpt-3.5-turbo")
     result = validator.validate(req.chunks, req.original_query)
     return {
