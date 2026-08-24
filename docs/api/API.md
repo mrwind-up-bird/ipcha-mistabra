@@ -39,13 +39,17 @@ In Docker-Netzwerken erwartet der Sidecar den NLI-Service standardmäßig unter 
 
 Beide Dienste haben **keine eigene Authentifizierung**. Sie sind als interne Sidecars konzipiert und gehören hinter ein Gateway / einen Reverse Proxy, der Authentifizierung, Rate-Limiting und TLS übernimmt. Niemals ungeschützt ins öffentliche Netz stellen.
 
-Einzige Ausnahme: `POST /validate` akzeptiert einen **durchgereichten LLM-API-Key**:
+Der Sidecar *authentifiziert* also nicht — er nimmt entgegen, was das Gateway ihm über Header mitgibt:
 
-```
-X-LLM-Api-Key: sk-...
-```
+| Header | Betrifft | Zweck |
+|---|---|---|
+| `X-Tenant-Id` | `/content` (**Pflicht**) | Mandantenkennung für die Denial-of-Wallet-Abrechnung. Der Sidecar vergibt keine Identitäten, er rechnet gegen die des Gateways ab |
+| `X-Anthropic-Api-Key` | `/content` | Anthropic-Key des Aufrufers (BYOK). Für mehrere Keys: `keys` im Request-Body |
+| `X-LLM-Api-Key` | `/content`, `/validate` | OpenAI-Key des Aufrufers. Alias: `X-OpenAI-Api-Key` |
 
-Dieser Header ist für BYOK-Szenarien gedacht (ein vorgelagerter Proxy injiziert den Key des Endnutzers). Fehlt der Header, greift der Sidecar auf die Umgebungsvariable `OPENAI_API_KEY` zurück.
+Fehlt ein Key-Header, greift die entsprechende Server-Umgebungsvariable (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY`). Details zur Vorrangregel, zum Failover über mehrere Keys und zum Umgang mit den Credentials stehen bei [`POST /content`](#post-content).
+
+**Keys niemals als Query-Parameter senden** — uvicorn protokolliert den vollständigen Query-String, ebenso Proxies, Load Balancer und CDNs. Header und JSON-Body werden nicht mitgeloggt.
 
 ### Content-Type
 
@@ -96,6 +100,8 @@ Bei Schema-Verletzungen (422) ist `detail` eine Liste von Validierungsfehlern:
 | Methode | Pfad | Zweck | Externe Abhängigkeit |
 |---|---|---|---|
 | `GET` | `/health` | Liveness-Probe | — |
+| `POST` | `/content` | **Volles Ipcha-Protokoll auf einen Text anwenden** | LLM (2 Provider), Redis |
+| `GET` | `/content/{job_id}` | Ergebnis eines asynchronen Protokolllaufs abholen | Redis |
 | `POST` | `/score` | Claim gegen Evidenzliste bewerten (IS_w / IS_ce) | NLI-Service (mit Fallback) |
 | `POST` | `/score/opposition` | Oppositionsgrad zweier Texte messen | — |
 | `POST` | `/sanitize` | 3-Schicht-Input-Sanitizing (Unicode / HTML / Prompt-Injection) | — |
@@ -120,6 +126,198 @@ Liveness-Probe ohne Abhängigkeiten. Antwortet auch, wenn Redis, DB oder NLI-Ser
 ```bash
 curl http://localhost:8100/health
 ```
+
+---
+
+### `POST /content`
+
+Wendet das **vollständige Ipcha-Protokoll** (Algorithmus 1) auf einen Text an und gibt nur das Urteil zurück. Das ist der Endpunkt für Integratoren, die keine Einzelbausteine orchestrieren wollen.
+
+Ablauf: `sanitize` → `ExtractClaims` → `Proponent` (These) → `Ipcha-Agent` (Antithese) → `Auditor` (Synthese) → Gate + Ipcha Score.
+
+**Kosten sind gedeckelt.** Das Protokoll läuft über das **ganze Artefakt**, nicht pro Claim — genau **vier** LLM-Aufrufe, unabhängig davon wie viele Claims im Text stecken. Das ist kein Zufall, sondern die Abwehr des in `backcheck/critics.md` dokumentierten Denial-of-Wallet-Vektors: ein Angreifer reicht ein Dokument ein, das „künstlich mit Tausenden von atomaren Trivialbehauptungen gefüllt" ist, und zwingt eine claim-weise auffächernde Pipeline in eine unbegrenzte API-Spirale. Whole-Artifact macht diesen Angriff wirkungslos.
+
+**Header**
+
+| Header | Pflicht | Beschreibung |
+|---|---|---|
+| `X-Tenant-Id` | **ja** | Mandantenkennung für die DoW-Abrechnung. Fehlt sie ⇒ `400`. Der Sidecar vergibt keine Identitäten, er rechnet gegen die ab, die das vorgelagerte Gateway liefert |
+| `X-Anthropic-Api-Key` | nein | Kurzform für **einen** Anthropic-Key. Für mehrere: `keys` im Body |
+| `X-LLM-Api-Key` | nein | Kurzform für **einen** OpenAI-Key (Name konsistent zu `/validate`). Alias: `X-OpenAI-Api-Key` |
+
+**Query-Parameter**
+
+| Parameter | Werte | Default | Beschreibung |
+|---|---|---|---|
+| `mode` | `sync` \| `async` | `sync` | `async` liefert sofort `202` mit `job_id`; das Ergebnis wird per `GET /content/{job_id}` abgeholt |
+
+**Request-Body**
+
+| Feld | Typ | Pflicht | Default | Beschreibung |
+|---|---|---|---|---|
+| `content` | `string` | ja | — | Das zu prüfende Textartefakt |
+| `keys` | `object` | nein | `{}` | Provider-Keys des Aufrufers: `{"anthropic": [...], "openai": [...]}`. Mehrere pro Provider aktivieren Failover |
+| `proponent_model` | `string` | nein | `claude-opus-5` | Modell der These |
+| `ipcha_model` | `string` | nein | `gpt-4o` | Modell der Antithese. **Muss einer anderen Modellfamilie angehören** |
+| `auditor_model` | `string` | nein | = `proponent_model` | Modell der Synthese |
+| `authority` | `array<string>` | nein | `[]` | Autoritätsdokumente zur Erdung der Objektionen |
+| `sanitize` | `bool` | nein | `true` | Eingangsbereinigung vor dem ersten LLM-Aufruf |
+
+#### Bring your own key
+
+Der Sidecar hat keine eigenen Provider-Keys nötig. Aufrufer bringen ihre eigenen mit — pro Provider einen oder mehrere:
+
+```json
+{
+  "content": "…",
+  "keys": {
+    "anthropic": ["sk-ant-primary", "sk-ant-spare"],
+    "openai":    ["sk-primary", "sk-spare", "sk-third"]
+  }
+}
+```
+
+**Vorrang pro Provider**, das erste Nicht-Leere gewinnt:
+
+1. `keys.<provider>` aus dem Body
+2. der passende Header (`X-Anthropic-Api-Key` bzw. `X-LLM-Api-Key`)
+3. die Server-Umgebung (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY`)
+
+Die Ebenen werden **nicht** zusammengeführt. Wer eigene Keys mitschickt, fällt nach deren Erschöpfung nicht stillschweigend auf die Credentials des Betreibers zurück.
+
+**Mindestens zwei Keys — aber die Anforderung ist genauer als das.** Gebraucht wird je ein Key für **jede benötigte Provider-Familie**. Da die Model-Diversity zwei Familien erzwingt, sind das mindestens zwei Keys. Drei Anthropic-Keys und kein OpenAI-Key erfüllen die Bedingung **nicht**. Fehlende Keys werden vor dem ersten LLM-Aufruf und **alle auf einmal** gemeldet:
+
+```json
+{ "detail": "No credentials for provider(s): anthropic, openai. Send keys.<provider> in the request body, the matching header, or configure the server environment." }
+```
+
+**Mehrere Keys pro Provider: Failover, keine Zufallsrotation.** Die Keys werden der Reihe nach benutzt; erst bei `401`, `403` oder `429` schaltet der Sidecar auf den nächsten. Ein abgelehnter Key wird für den Rest des Laufs übersprungen, nicht erneut je Rolle probiert. Andere Fehler (`500`, Zeitüberschreitung, unlesbares JSON) lösen **kein** Weiterschalten aus — sie sind kein Key-Problem, und die Ersatzkeys dafür zu verbrennen wäre falsch.
+
+Zufällige Rotation wäre schlechter, und zwar nicht aus Sicherheitsgründen:
+
+- **Prompt-Caching ist key-gebunden.** Das Protokoll wiederholt bei jedem Lauf dieselben vier System-Prompts. Auf einem Key bleiben heißt Cache-Treffer; würfeln heißt nie. Zufallsrotation macht `/content` also *teurer*.
+- **Kostenzuordnung wird beliebig**, wenn die Keys zu verschiedenen Konten gehören.
+- **Reproduzierbarkeit leidet** — für ein Verifikationsprotokoll, dessen Urteil auditierbar sein soll, ist das ein Eigentor.
+- **Sicherheitsgewinn: keiner.** Alle Keys treffen im selben Request über denselben Kanal ein.
+
+Bei mehreren Keys werden zusätzlich die SDK-internen Wiederholungen abgeschaltet (`max_retries=0`), damit ein gedrosselter Key sofort abgibt statt erst drei Round-Trips zu verbrauchen. Bei genau einem Key bleibt das SDK-Verhalten unverändert — dort gibt es nichts, wohin abgegeben werden könnte.
+
+#### Was mit den Keys passiert
+
+| | |
+|---|---|
+| Gespeichert | **nie** — weder in Redis, noch in der Datenbank, noch auf Platte |
+| Geloggt | **nie** — Header und Body landen nicht im uvicorn-Zugriffsprotokoll |
+| Zurückgegeben | **nie** — `meta` enthält Modelle, keine Credentials |
+| Im Speicher | für die Dauer des Laufs, unvermeidlich |
+
+**Keys niemals als Query-Parameter senden.** uvicorn protokolliert den vollständigen Query-String (`"POST /content?mode=async HTTP/1.1" 202`); dasselbe tun Proxies, Load Balancer und CDNs. Header und JSON-Body werden nicht mitgeloggt. Der Endpunkt akzeptiert Keys deshalb ausschließlich dort.
+
+**Provider-Fehlertexte werden geschwärzt.** Anbieter echoen den beanstandeten Key in ihre Fehlermeldung (`Incorrect API key provided: sk-…`). Solche Texte werden gefiltert, bevor sie in eine Antwort, ein Logfile oder den Job-Store gehen — letzteres ist der kritische Pfad, weil ein Job eine Stunde lang in Redis überlebt:
+
+```json
+{ "status": "failed", "provider": "anthropic", "model": "claude-opus-5",
+  "error": "Error code: 401 - … 'message': 'invalid x-api-key [redacted]'" }
+```
+
+**TLS ist Sache des Betreibers.** Der Sidecar spricht reines HTTP. Auf der Strecke zwischen Gateway und Sidecar liegen die Keys im Klartext, solange diese Strecke nicht abgesichert ist. BYOK verlagert das Risiko vom Betreiber zum Aufrufer, es beseitigt es nicht.
+
+**Model-Diversity ist erzwungen, nicht empfohlen.** `get_model_family` splittet am ersten Bindestrich oder der ersten Ziffer (`claude-opus-5` → `claude`, `gpt-4o` → `gpt`). Gleiche Familie für Proponent und Ipcha-Agent ⇒ `400`. Bekannte Familien: `claude` → Anthropic, `gpt`/`o`/`chatgpt` → OpenAI.
+
+**Beispiel-Request**
+```json
+{
+  "content": "The service must use TLS 1.3 for all inbound connections.",
+  "proponent_model": "claude-opus-5",
+  "ipcha_model": "gpt-4o"
+}
+```
+
+**Response `200`** (realer Messwert)
+```json
+{
+  "gate": "BLOCK",
+  "ipcha_score": 0.8802,
+  "summary": "TLS 1.3 mandate is sound but incomplete: no fallback policy.",
+  "findings": [
+    {
+      "id": "F001",
+      "claim": "The service uses TLS 1.3.",
+      "severity": "high",
+      "status": "accepted",
+      "rationale": "Mandate lacks a fallback path.",
+      "remediation": "Document behaviour for clients without TLS 1.3."
+    }
+  ],
+  "meta": {
+    "models": {"proponent": "claude-opus-5", "ipcha": "gpt-4o", "auditor": "claude-opus-5"},
+    "claims_extracted": 1,
+    "blocking_findings": 1,
+    "score_metric": "nli",
+    "sanitizer_anomalies": [],
+    "duration_ms": 789,
+    "budget_remaining": 99
+  }
+}
+```
+
+| Feld | Beschreibung |
+|---|---|
+| `gate` | `PASS` \| `BLOCK`. `BLOCK`, sobald ein Finding mit Severity `critical`/`high` **nicht** den Status `refuted` trägt |
+| `ipcha_score` | Divergenz zwischen Proponent- und Auditor-Text. `0.0` = Auditor übernimmt die These wortgleich (Sycophancy-Verdacht), höhere Werte = substanzielle Korrektur |
+| `summary` | Synthese des Auditors in Prosa |
+| `findings[]` | Zusammengeführte Findings mit `severity`, `status`, `rationale`, `remediation` |
+| `meta.score_metric` | `nli` oder `is_w` — zeigt an, ob der NLI-Service erreichbar war. Derselbe Lauf ergab `0.8802` via NLI und `0.8889` via Jaccard-Fallback; die Aussage (starke Divergenz zwischen These und Synthese) bleibt in beiden Fällen dieselbe |
+| `meta.budget_remaining` | Verbleibende Aufrufe im DoW-Fenster; auch als Header `X-DoW-Budget-Remaining` |
+
+**Zwischenschritte werden bewusst nicht zurückgegeben** — Proponent-Text, Ipcha-Text und die Claim-Liste entstehen, wirken auf das Urteil und werden verworfen.
+
+**Statuscodes**
+
+| Code | Bedeutung |
+|---|---|
+| `200` | Urteil liegt vor |
+| `202` | Nur bei `mode=async`: Job angenommen |
+| `400` | `X-Tenant-Id` fehlt · Model-Diversity verletzt · unbekannte Modellfamilie · Artefakt vom Sanitizer abgelehnt |
+| `413` | DoW Layer 1: geschätzte Kosten über `DOW_INVOCATION_COST_CEILING` |
+| `429` | DoW Layer 2: Mandantenbudget erschöpft. Mit `Retry-After` |
+| `502` | LLM-Provider hat versagt |
+| `503` | Keine Credentials für eine benötigte Provider-Familie (alle fehlenden werden auf einmal genannt) · Budget-Store (Redis) nicht erreichbar |
+
+**Sanitizer: nur Injection ist fatal.** Ein Treffer auf ein Prompt-Injection-Muster bricht den Lauf **vor jedem LLM-Aufruf** ab (`400`) — abgelehnte Artefakte kosten nichts. Unicode-Normalisierung und entfernte Auszeichnung werden dagegen nur in `meta.sanitizer_anomalies` vermerkt und der Lauf fährt auf dem bereinigten Text fort. Grund: NFKC verändert reichlich legitime Prosa (Ligaturen, geschützte Leerzeichen); ein harter Stopp darauf wäre unbrauchbar.
+
+**Fail-closed bei Redis-Ausfall.** Ohne Budget-Store lässt sich nicht abrechnen — der Endpunkt antwortet dann `503` statt ungemessen LLM-Kosten zu verursachen.
+
+```bash
+curl -X POST http://localhost:8100/content \
+  -H 'Content-Type: application/json' \
+  -H 'X-Tenant-Id: acme' \
+  -H 'X-Anthropic-Api-Key: sk-ant-...' \
+  -H 'X-LLM-Api-Key: sk-...' \
+  -d '{"content":"The service must use TLS 1.3 for all inbound connections."}'
+```
+
+---
+
+### `GET /content/{job_id}`
+
+Holt das Ergebnis eines mit `mode=async` gestarteten Laufs ab.
+
+**Response `200`**
+```json
+{ "status": "done", "job_id": "6fa04c2f...", "result": { "gate": "PASS", "…": "…" } }
+```
+
+| `status` | Bedeutung |
+|---|---|
+| `pending` | Angenommen, noch nicht gestartet |
+| `running` | Protokoll läuft |
+| `done` | `result` enthält dasselbe Objekt wie ein synchroner Aufruf |
+| `failed` | `error` enthält die Ursache |
+
+`404` bei unbekannter oder abgelaufener `job_id` (TTL 1 Stunde). `503`, wenn Redis fehlt.
+
+> **Async ist Zustellung, nicht Nachsicht.** Die Kritik in `backcheck/critics.md` wirft dem Paper vor, ein asynchroner Advisory-Modus „bricht die Grundprämisse des strengen, unumgänglichen Gates". Das gilt hier ausdrücklich nicht: `mode=async` ändert **nur**, wann das Ergebnis abgeholt wird. Die Gate-Entscheidung ist identisch, ein `BLOCK` bleibt ein `BLOCK`. Wer `mode=async` als weicheres Gate behandelt, hebelt das Protokoll aus — nicht der Modus tut das.
 
 ---
 
@@ -724,7 +922,19 @@ Reihenfolge der `results` entspricht der Reihenfolge der `pairs`.
 
 ## 4. Typische Integrationsabläufe
 
-### A. Artefakt-Review-Pipeline (empfohlener Standardfluss)
+### A. Ein Aufruf — `POST /content` (empfohlen)
+
+Für die allermeisten Integrationen ist das der ganze Ablauf. Der Endpunkt führt Sanitizing, Claim-Extraktion, Trialektik, Gate und Score selbst aus:
+
+```
+POST /content   →   { gate, ipcha_score, summary, findings, meta }
+```
+
+Nötig sind ein `X-Tenant-Id`-Header und Keys für zwei Provider-Familien. Wer die Zwischenschritte nicht braucht — und darum geht es hier —, braucht keinen der anderen Endpunkte.
+
+### B. Selbst orchestrieren
+
+Nur sinnvoll, wenn du eigene Agenten, eigene Prompts oder eine abweichende Rollenaufteilung einsetzt und den Sidecar bloß als Werkzeugkasten nutzt:
 
 ```
 1. POST /sanitize          → Eingabe bereinigen; bei is_clean=false abbrechen oder eskalieren
@@ -736,63 +946,116 @@ Reihenfolge der `results` entspricht der Reihenfolge der `pairs`.
 7. GET  /audit/rejections  → Ablehnungen für Audit/Compliance abrufen
 ```
 
-### B. Reine Claim-Verifikation
+Beachte: Dieser Weg umgeht die Denial-of-Wallet-Schichten — die hängen ausschließlich an `/content`, weil dort als einzigem Ort tatsächlich Geld fließt. Wer selbst orchestriert, muss die Kostenkontrolle selbst mitbringen.
+
+### C. Reine Claim-Verifikation
 
 ```
 1. POST /route             → Claim mit Klassifikation an den zuständigen Agenten
 2. POST /arbitrate         → Mehrere Agentenergebnisse aggregieren
 ```
 
-### C. Direkte NLI-Nutzung ohne Sidecar
+### D. Direkte NLI-Nutzung ohne Sidecar
 
 ```
 POST :8200/batch           → alle Claim/Evidenz-Paare in einem Aufruf klassifizieren
 ```
+
+---
 
 **Beispiel: Node.js / TypeScript**
 
 ```ts
 const IPCHA = process.env.IPCHA_URL ?? "http://localhost:8100";
 
-async function post<T>(path: string, body: unknown, headers: Record<string, string> = {}): Promise<T> {
-  const res = await fetch(`${IPCHA}${path}`, {
+type Verdict = {
+  gate: "PASS" | "BLOCK";
+  ipcha_score: number;
+  summary: string;
+  findings: Array<{
+    id: string; claim: string; severity: string;
+    status: string; rationale: string; remediation: string | null;
+  }>;
+  meta: { models: Record<string, string>; claims_extracted: number; duration_ms: number };
+};
+
+async function review(artifact: string, tenantId: string): Promise<Verdict> {
+  const res = await fetch(`${IPCHA}/content`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...headers },
-    body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json", "X-Tenant-Id": tenantId },
+    body: JSON.stringify({
+      content: artifact,
+      // Mehrere Keys pro Provider aktivieren Failover. Alternativ die
+      // Header X-Anthropic-Api-Key / X-LLM-Api-Key für je einen Key.
+      keys: {
+        anthropic: [process.env.ANTHROPIC_API_KEY!],
+        openai: [process.env.OPENAI_API_KEY!],
+      },
+    }),
+    // Der Lauf dauert 20-60s — der Default vieler HTTP-Clients reicht nicht.
+    signal: AbortSignal.timeout(180_000),
   });
-  if (!res.ok) throw new Error(`IPCHA ${path} → ${res.status}: ${await res.text()}`);
-  return res.json() as Promise<T>;
+
+  if (res.status === 429) throw new Error(`Budget erschöpft, erneut in ${res.headers.get("Retry-After")}s`);
+  if (!res.ok) throw new Error(`IPCHA /content → ${res.status}: ${await res.text()}`);
+  return res.json() as Promise<Verdict>;
 }
 
-const clean = await post<{ is_clean: boolean; sanitized_content: string }>(
-  "/sanitize",
-  { content: rawArtifact },
-);
-if (!clean.is_clean) throw new Error("Artefakt abgelehnt");
-
-const score = await post<{ score: number; scorer: string }>("/score", {
-  claim: "TLS 1.3 removes RSA key exchange.",
-  evidence: [{ text: "RFC 8446 removes static RSA key exchange.", type: "SUPPORTING" }],
-});
+const verdict = await review(artifact, "acme");
+if (verdict.gate === "BLOCK") {
+  const blockers = verdict.findings.filter(
+    (f) => ["critical", "high"].includes(f.severity) && f.status !== "refuted",
+  );
+  throw new Error(`Artefakt blockiert:\n${blockers.map((f) => `- ${f.claim}: ${f.rationale}`).join("\n")}`);
+}
 ```
 
 **Beispiel: Python**
 
 ```python
+import os
 import httpx
 
-IPCHA = "http://localhost:8100"
+IPCHA = os.getenv("IPCHA_URL", "http://localhost:8100")
 
-with httpx.Client(base_url=IPCHA, timeout=30.0) as client:
-    clean = client.post("/sanitize", json={"content": raw_artifact}).raise_for_status().json()
-    if not clean["is_clean"]:
-        raise ValueError(f"Anomalien: {clean['anomalies']}")
+# 20-60s pro Lauf: der httpx-Default von 5s reicht nicht.
+with httpx.Client(base_url=IPCHA, timeout=180.0) as client:
+    response = client.post(
+        "/content",
+        headers={"X-Tenant-Id": "acme"},
+        json={
+            "content": artifact,
+            "keys": {
+                "anthropic": [os.environ["ANTHROPIC_API_KEY"]],
+                "openai": [os.environ["OPENAI_API_KEY"]],
+            },
+        },
+    )
 
-    result = client.post("/score", json={
-        "claim": "TLS 1.3 removes RSA key exchange.",
-        "evidence": [{"text": "RFC 8446 removes static RSA key exchange.", "type": "SUPPORTING"}],
-    }).raise_for_status().json()
-    print(result["score"], result["scorer"])
+    if response.status_code == 429:
+        raise RuntimeError(f"Budget erschöpft, erneut in {response.headers['Retry-After']}s")
+    response.raise_for_status()
+    verdict = response.json()
+
+if verdict["gate"] == "BLOCK":
+    blockers = [
+        f for f in verdict["findings"]
+        if f["severity"] in ("critical", "high") and f["status"] != "refuted"
+    ]
+    raise RuntimeError("Artefakt blockiert:\n" + "\n".join(
+        f"- {f['claim']}: {f['rationale']}" for f in blockers
+    ))
+```
+
+**Hinter einem Proxy mit knappem Timeout** stattdessen asynchron laufen lassen — die Gate-Entscheidung ist identisch, nur die Zustellung verschiebt sich:
+
+```bash
+JOB=$(curl -s -X POST 'http://localhost:8100/content?mode=async' \
+  -H 'Content-Type: application/json' -H 'X-Tenant-Id: acme' \
+  -d '{"content":"…"}' | jq -r .job_id)
+
+until [ "$(curl -s http://localhost:8100/content/$JOB | jq -r .status)" != "running" ]; do sleep 5; done
+curl -s "http://localhost:8100/content/$JOB" | jq .result
 ```
 
 ---
@@ -808,7 +1071,8 @@ with httpx.Client(base_url=IPCHA, timeout=30.0) as client:
 | `REDIS_HOST` | `localhost` | Redis-Host für den Sycophancy-Monitor |
 | `REDIS_PORT` | `6379` | Redis-Port |
 | `DATABASE_URL` | – | SQLAlchemy-URL für das Audit-Log. Fehlt sie ⇒ `/audit/rejections` liefert `503` |
-| `OPENAI_API_KEY` | – | Fallback-Key für `/validate` und `PromptBasedAgent` |
+| `OPENAI_API_KEY` | – | Fallback-Key für `/validate`, `PromptBasedAgent` und die OpenAI-Rolle in `/content` |
+| `ANTHROPIC_API_KEY` | – | Fallback-Key für die Claude-Rolle in `/content` |
 | `SYCOPHANCY_WINDOW_SIZE` | `1000` | Größe des gleitenden Metrikfensters |
 | `AGREEMENT_RATE_THRESHOLD` | `0.70` | Alarmschwelle Zustimmungsrate |
 | `CAPITULATION_RATE_THRESHOLD` | `0.50` | Alarmschwelle Kapitulationsrate |
@@ -857,11 +1121,16 @@ services:
     ports: ["8100:8100"]
     environment:
       NLI_SERVICE_URL: http://deberta-nli:8200
-      REDIS_HOST: redis
-      # DATABASE_URL: postgresql://ipcha:secret@postgres:5432/ipcha
+      REDIS_HOST: redis            # /content braucht Redis zwingend (DoW-Budget)
+      # Optionale Betreiber-Credentials. Nur als Fallback nötig — Aufrufer
+      # können ihre eigenen Keys pro Request mitschicken (siehe /content).
+      # ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       # OPENAI_API_KEY: ${OPENAI_API_KEY}
+      # DATABASE_URL: postgresql://ipcha:secret@postgres:5432/ipcha
     depends_on: [deberta-nli, redis]
 ```
+
+> `/content` ist ohne Redis nicht benutzbar — ohne Budget-Store verweigert der Endpunkt fail-closed mit `503`, statt ungemessen LLM-Kosten zu verursachen.
 
 ---
 
@@ -886,6 +1155,7 @@ Alle melden fehlende Konfiguration jetzt einheitlich als `503` mit JSON-`detail`
 | `/route` | `503 ClaimRouter not initialized` | `config.yml` (`IPCHA_CONFIG_PATH`) — wird **nur beim Start** gelesen, Änderung erfordert Neustart |
 | `/sycophancy/metrics` | `500` (Redis `ConnectionError`) | erreichbares Redis (`REDIS_HOST`/`REDIS_PORT`) |
 | `/evaluate` | `400 Plugin not found: No module named 'tests'` | nicht nutzbar — die Plugin-Pakete `tests.evaluation.*` sind nicht Teil des Repos |
+| `/content` | `503` ohne Provider-Credentials, `503` ohne Redis | Keys für **zwei** Provider-Familien (Anthropic + OpenAI) und ein erreichbares Redis |
 
 **Semantische Fallstricke**
 
@@ -897,7 +1167,11 @@ Alle melden fehlende Konfiguration jetzt einheitlich als `503` mit JSON-`detail`
 9. **`/validate` reicht Upstream-Fehlertexte durch** — `metadata.error` enthält bei `VALIDATION_ERROR` die unveränderte Anbietermeldung. Vor Weitergabe an Endnutzer filtern.
 10. **`created_at` ist kein ISO-8601** — `str(datetime)` mit Leerzeichen statt `T`; Mikrosekunden je nach DB-Backend vorhanden oder nicht.
 
-**Minimal funktionsfähiger Satz ohne jede Zusatzinfrastruktur:** `/health`, `/score` (TF-IDF-Anteil), `/score/opposition`, `/sanitize`, `/arbitrate`.
+11. **`/content` ist der einzige kostenpflichtige Endpunkt** — vier LLM-Aufrufe pro Lauf. Beide DoW-Schichten hängen ausschließlich hier, weil hier als einzigem Ort tatsächlich Geld fließt.
+12. **Reihenfolge der Prüfungen in `/content`:** Sanitizer → Model-Diversity → Credentials → Kostendeckel → Budget → LLM-Aufrufe. Alles, was ohnehin nicht laufen kann, wird **vor** der Budgetbuchung abgewiesen — eine fehlkonfigurierte Instanz verbrennt also kein Mandantenbudget. Ein Lauf, der erst beim Provider scheitert (`502`), hat sein Budget dagegen verbraucht; das ist gewollt, sonst wären Fehlversuche ein kostenloser Hebel zum Hämmern.
+13. **`/content` kennt keine Deduplizierung** — derselbe Text zweimal geschickt kostet zweimal. Caching gehört in die aufrufende Schicht.
+
+**Minimal funktionsfähiger Satz ohne jede Zusatzinfrastruktur:** `/health`, `/score` (TF-IDF-Anteil), `/score/opposition`, `/sanitize`, `/arbitrate`. `/content` gehört ausdrücklich **nicht** dazu.
 
 ---
 
@@ -919,6 +1193,8 @@ Geprüft am 2026-08-23. Sidecar lokal via `uvicorn ipcha.api:app` (Python 3.12),
 | `GET /sycophancy/metrics` | ✅ `500` (Redis fehlt) | ✅ `200`, alle Metriken `0.0` bei leerem Fenster |
 | `GET /audit/rejections` | ✅ `503` (kein `DATABASE_URL`) | ✅ `200`, Pagination + `reason_code`-Filter bestätigt |
 | `POST /evaluate` | ✅ `400` (Plugins fehlen) | ✅ unverändert `400` |
+| `POST /content` | ✅ `503` (keine Credentials) | ✅ `200`, vollständiger Vier-Rollen-Durchlauf |
+| `GET /content/{job_id}` | ✅ `503` (kein Redis) | ✅ `200`, Job-Lebenszyklus bestätigt |
 
 **NLI-Service (Port 8200) — vollständig verifiziert**
 
@@ -932,6 +1208,44 @@ Docker-Image gebaut (1,25 GB) und gestartet; ONNX-Modell geladen.
 | Validierung | ✅ leere/Whitespace-`premise` → `422` |
 
 Die Label-Zuordnung in `nli-service/main.py` (`0=contradiction, 1=entailment, 2=neutral`) ist damit an realen Beispielen bestätigt.
+
+**`/content` im Detail**
+
+Der Protokolldurchlauf wurde gegen einen lokalen Stub verifiziert, der die Anthropic- und OpenAI-HTTP-Schnittstellen nachbildet (`ANTHROPIC_BASE_URL` / `OPENAI_BASE_URL`). Damit laufen die **echten SDK-Codepfade** — Requestaufbau, Antwortparsing, JSON-Extraktion, Fehlerübersetzung — und nicht nur Mocks.
+
+| Prüfung | Ergebnis |
+|---|---|
+| Vier-Rollen-Durchlauf, Gate + Score | ✅ `200`, `BLOCK` bei unwiderlegtem high-Finding |
+| Score über NLI bzw. Jaccard-Fallback | ✅ `score_metric: nli` mit laufendem NLI-Service, `is_w` ohne |
+| Fehlender `X-Tenant-Id` | ✅ `400` |
+| Gleiche Modellfamilie | ✅ `400` mit Diversity-Meldung |
+| Prompt-Injection im Artefakt | ✅ `400`, **null** LLM-Aufrufe |
+| Artefakt über Kostendeckel | ✅ `413`, **null** LLM-Aufrufe |
+| Unbekannte Modellfamilie | ✅ `400` |
+| Fehlende Credentials | ✅ `503` |
+| DoW-Budget erschöpft | ✅ `429` mit `Retry-After` |
+| `mode=async` Lebenszyklus | ✅ `202` → `pending` → Ergebnis bzw. `failed` |
+| Unbekannte `job_id` | ✅ `404` |
+| BYOK: Body-Keys schlagen Header | ✅ pro Provider getrennt — Body für `anthropic`, Header für `openai` |
+| Fehlende Keys, alle Provider auf einmal gemeldet | ✅ `503` mit `anthropic, openai` |
+| Credentials-Prüfung vor der Budgetbuchung | ✅ Budget unangetastet |
+| Failover `401` → `429` → gültiger Key | ✅ jeder tote Key **genau einmal** probiert |
+| Nicht-Key-Fehler (`500`) lösen kein Weiterschalten aus | ✅ Ersatzkeys bleiben unangetastet |
+| Key-Schwärzung in der `502`-Antwort | ✅ `invalid x-api-key [redacted]` |
+| Key-Schwärzung im Job-Store (at rest) | ✅ Rohinhalt in Redis geprüft, kein Klartext-Key |
+
+Dabei kam ein echter Fehler zum Vorschein, den Mocks nicht gefunden hätten: `anthropic>=1.0` hat `temperature` aus `messages.create()` entfernt (aktuelle Claude-Modelle lehnen Sampling-Parameter mit `400` ab). Der Anthropic-Client übergibt den Parameter deshalb nicht mehr.
+
+Nicht verifiziert: ein Lauf gegen die **echten** Anthropic- und OpenAI-Endpunkte. Dafür fehlen bezahlte Zugänge. Verifiziert sind Requestaufbau und Antwortverarbeitung, nicht die Qualität echter Modellausgaben.
+
+**Unit-Tests**
+
+`tests/` deckt Gate-Regel, Provider- und Key-Auflösung, Failover, Schwärzung und den Orchestrator mit einem Mock-`LLMClient` ab — 51 Tests, kein Netz nötig. Darunter der Nachweis, dass der Ipcha-Prompt die in `CLAUDE.md` vorgeschriebene Formulierung wörtlich trägt und dass ein abgelehntes Artefakt keinen einzigen LLM-Aufruf auslöst.
+
+```bash
+pip install -r sidecar/requirements.txt pytest
+pytest
+```
 
 **Postman-Collection**
 
