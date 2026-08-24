@@ -2,7 +2,7 @@
 import os
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any, Literal
 
@@ -18,16 +18,35 @@ from ipcha.sycophancy_monitor import SycophancyMonitor, MonitorConfig
 from ipcha.routing import from_config as load_router
 from ipcha.arbitration.confmad import run_confidence_arbitration
 from ipcha.arbitration.models import AssessmentInput
+from ipcha.content import (
+    ProtocolConfig,
+    SanitizationRejected,
+    DEFAULT_IPCHA_MODEL,
+    DEFAULT_PROPONENT_MODEL,
+    load_job,
+    new_job_id,
+    run_protocol,
+    store_job,
+)
+from ipcha.exceptions import (
+    BudgetLimitExceededError,
+    InvocationCostExceededError,
+    ModelDiversityError,
+)
+from ipcha.llm.base import LLMError
+from ipcha.llm.factory import MissingCredentialsError, UnknownModelError
+from ipcha.redact import redact_secrets
 
 # --- Globals initialized at startup ---
 claim_router = None
 sycophancy_monitor = None
+redis_client = None
 isw_scorer = ISwScorer()
 nli_scorer = NliScorer()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global claim_router, sycophancy_monitor
+    global claim_router, sycophancy_monitor, redis_client
     # Initialize ClaimRouter from config
     config_path = os.getenv("IPCHA_CONFIG_PATH", "config.yml")
     if os.path.exists(config_path):
@@ -67,6 +86,18 @@ class ArbitrateRequest(BaseModel):
 class RouteRequest(BaseModel):
     claim: Dict[str, str]
     classification: str
+
+class ContentRequest(BaseModel):
+    content: str
+    # Bring-your-own-key. One or more keys per provider; several enable
+    # failover. Never stored, logged, or echoed back.
+    keys: Dict[str, List[str]] = Field(default_factory=dict)
+    proponent_model: str = DEFAULT_PROPONENT_MODEL
+    ipcha_model: str = DEFAULT_IPCHA_MODEL
+    auditor_model: Optional[str] = None
+    authority: List[str] = Field(default_factory=list)
+    sanitize: bool = True
+
 
 class EvaluateRequest(BaseModel):
     dataset: str
@@ -142,10 +173,14 @@ async def validate(req: ValidateRequest, request: Request):
         )
     validator = CrossChunkValidator(api_key=api_key, model=req.model or "gpt-3.5-turbo")
     result = validator.validate(req.chunks, req.original_query)
+    metadata = {
+        k: redact_secrets(v) if isinstance(v, str) else v
+        for k, v in result["metadata"].items()
+    }
     return {
         "status": result["status"].value,
         "reason": result["reason"].value if result["reason"] else None,
-        "metadata": result["metadata"],
+        "metadata": metadata,
     }
 
 @app.post("/arbitrate")
@@ -245,6 +280,162 @@ async def evaluate(req: EvaluateRequest):
             "metric_results": metric_results,
         })
     return {"results": results, "puzzle_count": len(results)}
+
+
+# --- Full protocol (Algorithm 1) --------------------------------------------
+
+def _collect_keys(request: Request, body_keys: Dict[str, List[str]]) -> Dict[str, List[str]]:
+    """Merge caller-supplied provider keys.
+
+    Precedence per provider: request body wins, then the matching header, then
+    (inside the LLM factory) the server environment. Body and header are not
+    concatenated — a caller that brings its own keys never silently falls
+    through to another party's credentials.
+    """
+    keys: Dict[str, List[str]] = {
+        provider: [k for k in supplied if k and k.strip()]
+        for provider, supplied in (body_keys or {}).items()
+    }
+    keys = {p: v for p, v in keys.items() if v}
+
+    header_keys = {
+        "anthropic": request.headers.get("x-anthropic-api-key"),
+        "openai": request.headers.get("x-llm-api-key") or request.headers.get("x-openai-api-key"),
+    }
+    for provider, value in header_keys.items():
+        if value and provider not in keys:
+            keys[provider] = [value]
+    return keys
+
+
+def _execute_protocol(text, config, keys, tenant_id) -> Dict[str, Any]:
+    """Run the protocol, translating domain errors into HTTP semantics."""
+    try:
+        return run_protocol(text, config, keys=keys, tenant_id=tenant_id)
+    except SanitizationRejected as exc:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "Artifact rejected by sanitizer", "anomalies": exc.anomalies},
+        ) from exc
+    except ModelDiversityError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except InvocationCostExceededError as exc:
+        raise HTTPException(
+            status_code=413,
+            detail={
+                "error": str(exc),
+                "observed": exc.observed_value,
+                "limit": exc.limit_value,
+            },
+        ) from exc
+    except BudgetLimitExceededError as exc:
+        raise HTTPException(
+            status_code=429,
+            detail={
+                "error": str(exc),
+                "observed": exc.observed_value,
+                "limit": exc.limit_value,
+            },
+            headers={"Retry-After": str(os.getenv("DOW_BUDGET_PERIOD_SECONDS", "3600"))},
+        ) from exc
+    except UnknownModelError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except MissingCredentialsError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except LLMError as exc:
+        # Provider error text can carry the offending key — redact before it
+        # reaches the client.
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "error": "LLM provider call failed",
+                "provider": exc.provider,
+                "model": exc.model,
+                "provider_status": exc.status_code,
+                "detail": redact_secrets(str(exc)),
+            },
+        ) from exc
+    except redis_lib.exceptions.RedisError as exc:
+        # Fail closed: without Redis the rolling budget cannot be metered, and
+        # the whole point of the DoW layer is to never spend unmetered.
+        raise HTTPException(
+            status_code=503,
+            detail="Budget store unavailable; refusing to run unmetered",
+        ) from exc
+
+
+def _run_job(job_id: str, text: str, config, keys, tenant_id) -> None:
+    """Background worker for mode=async. Never raises — failures land in the job."""
+    try:
+        store_job(redis_client, job_id, {"status": "running", "job_id": job_id})
+        result = run_protocol(text, config, keys=keys, tenant_id=tenant_id)
+        store_job(redis_client, job_id, {"status": "done", "job_id": job_id, "result": result})
+    except Exception as exc:  # noqa: BLE001
+        # The job store outlives the request (1h TTL), so an unredacted provider
+        # message here would persist a key at rest.
+        reason = redact_secrets(str(exc))
+        logger.warning("Protocol job %s failed: %s", job_id, reason)
+        failure: Dict[str, Any] = {
+            "status": "failed",
+            "job_id": job_id,
+            "error": reason,
+            "error_type": type(exc).__name__,
+        }
+        if isinstance(exc, LLMError):
+            failure.update({"provider": exc.provider, "model": exc.model})
+        store_job(redis_client, job_id, failure)
+
+
+@app.post("/content")
+def content(
+    req: ContentRequest,
+    request: Request,
+    response: Response,
+    background: BackgroundTasks,
+    mode: Literal["sync", "async"] = "sync",
+):
+    """Apply the full Ipcha protocol to a text and return only the verdict."""
+    tenant_id = request.headers.get("x-tenant-id")
+    if not tenant_id:
+        raise HTTPException(
+            status_code=400,
+            detail="X-Tenant-Id header is required for denial-of-wallet accounting",
+        )
+
+    config = ProtocolConfig(
+        proponent_model=req.proponent_model,
+        ipcha_model=req.ipcha_model,
+        auditor_model=req.auditor_model,
+        authority=req.authority,
+        sanitize=req.sanitize,
+    )
+    keys = _collect_keys(request, req.keys)
+
+    if mode == "async":
+        if redis_client is None:
+            raise HTTPException(
+                status_code=503, detail="Redis not available; async mode requires it"
+            )
+        job_id = new_job_id()
+        store_job(redis_client, job_id, {"status": "pending", "job_id": job_id})
+        background.add_task(_run_job, job_id, req.content, config, keys, tenant_id)
+        response.status_code = 202
+        return {"job_id": job_id, "status": "pending"}
+
+    result = _execute_protocol(req.content, config, keys, tenant_id)
+    response.headers["X-DoW-Budget-Remaining"] = str(result["meta"]["budget_remaining"])
+    return result
+
+
+@app.get("/content/{job_id}")
+def content_job(job_id: str):
+    """Collect an async protocol run. The gate decision is identical to sync."""
+    if redis_client is None:
+        raise HTTPException(status_code=503, detail="Redis not available")
+    job = load_job(redis_client, job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Unknown or expired job_id")
+    return job
 
 
 def _log_sanitize_rejection(anomalies) -> None:
