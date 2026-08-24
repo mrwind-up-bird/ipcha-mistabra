@@ -25,6 +25,11 @@ The protocol is described in our paper: *"Ipcha Mistabra: Structured Adversarial
                     │   IPCHA Sidecar     │  Port 8100
                     │   (FastAPI/Python)  │
                     │                     │
+                    │  ┌─Trialectic─────┐ │
+                    │  │ Proponent      │ │──── Claude  ┐
+                    │  │ Ipcha Agent    │ │──── GPT     │ model
+                    │  │ Auditor        │ │             ┘ diversity
+                    │  └────────────────┘ │     enforced
                     │  ┌─Claim Router───┐ │
                     │  │ SDRLAgent      │ │──── Authority Docs
                     │  │ PromptAgent    │ │     (Axiom RAG)
@@ -53,7 +58,11 @@ The protocol is described in our paper: *"Ipcha Mistabra: Structured Adversarial
 ipcha-mistabra/
 ├── sidecar/                    # IPCHA verification sidecar (Port 8100)
 │   ├── api.py                  # FastAPI entry point
+│   ├── content.py              # Full-protocol orchestrator (Algorithm 1)
+│   ├── gate.py                 # Release gate G(F)
 │   ├── protocol.py             # DebateSession, model diversity enforcement
+│   ├── budget.py               # Denial-of-wallet rolling budget
+│   ├── redact.py               # Strips credentials out of outbound text
 │   ├── score.py                # IS_w metric (TF-IDF baseline)
 │   ├── nli_scorer.py           # IS_ce metric (NLI-based)
 │   ├── nli_client.py           # HTTP client for NLI microservice
@@ -61,11 +70,23 @@ ipcha-mistabra/
 │   ├── routing.py              # Claim routing to specialized agents
 │   ├── sanitize.py             # 3-layer input sanitization
 │   ├── sycophancy_monitor.py   # Redis-backed behavioral monitoring
+│   ├── roles/                  # The trialectic
+│   │   ├── extract.py          # ExtractClaims (Algorithm 2)
+│   │   ├── proponent.py        # Thesis
+│   │   ├── ipcha.py            # Antithesis (Algorithm 3)
+│   │   └── auditor.py          # Synthesis
+│   ├── prompts/                # Role prompt templates
+│   ├── llm/                    # Provider abstraction
+│   │   ├── base.py             # LLMClient ABC — mockable, no network in tests
+│   │   ├── anthropic_client.py, openai_client.py
+│   │   ├── failover.py         # Ordered key failover (not random rotation)
+│   │   └── factory.py          # Model family -> provider, key resolution
 │   ├── agents/                 # Verification agent implementations
 │   │   ├── base.py             # Abstract VerificationAgent
 │   │   └── implementations.py  # SDRLAgent, PromptBasedAgent, DefaultAgent
 │   ├── authority/              # Cross-chunk coherence validation
 │   └── Dockerfile
+├── tests/                      # pytest suite (mock LLM, no network required)
 ├── nli-service/                # DeBERTa NLI microservice (Port 8200)
 │   ├── main.py                 # FastAPI NLI service
 │   ├── export_model.py         # HuggingFace → ONNX export
@@ -134,7 +155,28 @@ This generates the synthetic corpus, runs all three scoring methods (TF-IDF, SBE
 
 ## API Integration
 
-Integrating IPCHA into another project? See **[`docs/api/API.md`](docs/api/API.md)** for the full REST reference — every endpoint, parameter, payload and response for both services, plus configuration, integration flows and verified limitations.
+Integrating IPCHA into another project? For most cases a single call is the whole integration — `POST /content` runs the full protocol over a text and returns just the verdict:
+
+```bash
+curl -X POST http://localhost:8100/content \
+  -H 'Content-Type: application/json' \
+  -H 'X-Tenant-Id: acme' \
+  -d '{
+        "content": "The service must use TLS 1.3 for all inbound connections.",
+        "keys": {"anthropic": ["sk-ant-..."], "openai": ["sk-..."]}
+      }'
+```
+
+```json
+{ "gate": "BLOCK", "ipcha_score": 0.88,
+  "summary": "TLS 1.3 mandate is sound but incomplete: no fallback policy.",
+  "findings": [{ "id": "F001", "severity": "high", "status": "accepted", "...": "..." }],
+  "meta": { "models": { "...": "..." }, "claims_extracted": 1, "duration_ms": 34120 } }
+```
+
+Callers bring their own provider keys (several per provider enable failover); keys are never stored, logged, or echoed back. Model diversity between the Proponent and the Ipcha Agent is enforced, not advisory.
+
+See **[`docs/api/API.md`](docs/api/API.md)** for the full REST reference — every endpoint, parameter, payload and response for both services, plus configuration, integration flows and verified limitations.
 
 A ready-to-run Postman collection is included:
 

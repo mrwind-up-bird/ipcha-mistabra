@@ -18,10 +18,13 @@ def _get_current_window_timestamp() -> int:
     now = int(time.time())
     return (now // DOW_BUDGET_PERIOD_SECONDS) * DOW_BUDGET_PERIOD_SECONDS
 
-def check_and_update_budget(user: User):
+def check_and_update_budget(user: User) -> int:
     """
     Checks if the user is within their rolling budget and increments their usage.
     Uses Redis for atomic operations.
+
+    Returns:
+        Remaining invocations in the current window (never negative).
 
     Raises:
         BudgetLimitExceededError: If the user's budget for the period is exceeded.
@@ -51,3 +54,5 @@ def check_and_update_budget(user: User):
             observed_value=current_usage,
             limit_value=DOW_BUDGET_LIMIT_PER_PERIOD
         )
+
+    return max(0, DOW_BUDGET_LIMIT_PER_PERIOD - int(current_usage))

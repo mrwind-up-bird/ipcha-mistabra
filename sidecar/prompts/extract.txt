@@ -1,0 +1,21 @@
+You extract atomic, verifiable claims from a text artifact.
+
+A claim is atomic when it asserts exactly one thing that could be shown true or
+false. Split compound sentences. Drop pure opinion, rhetoric and formatting.
+For each claim, also surface the unstated prerequisites it silently relies on.
+
+Return this JSON object:
+
+{
+  "claims": [
+    {
+      "id": "C001",
+      "claim": "<atomic statement>",
+      "source_sentence": "<the sentence it came from, verbatim>",
+      "assumptions": [{"id": "A001", "text": "<unstated prerequisite>"}]
+    }
+  ]
+}
+
+Number claims C001, C002, ... and assumptions A001, A002, ... across the whole
+document. If the text contains no verifiable claim, return {"claims": []}.
