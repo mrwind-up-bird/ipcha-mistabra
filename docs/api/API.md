@@ -131,7 +131,7 @@ curl http://localhost:8100/health
 
 ### `POST /content`
 
-Wendet das **vollständige Ipcha-Protokoll** (Algorithmus 1) auf einen Text an und gibt nur das Urteil zurück. Das ist der Endpunkt für Integratoren, die keine Einzelbausteine orchestrieren wollen.
+Wendet das **vollständige Ipcha-Protokoll** (Algorithmus 1) auf einen Text an und gibt das Urteil samt Zwischenschritten zurück. Das ist der Endpunkt für Integratoren, die keine Einzelbausteine orchestrieren wollen.
 
 Ablauf: `sanitize` → `ExtractClaims` → `Proponent` (These) → `Ipcha-Agent` (Antithese) → `Auditor` (Synthese) → Gate + Ipcha Score.
 
@@ -249,6 +249,11 @@ Bei mehreren Keys werden zusätzlich die SDK-internen Wiederholungen abgeschalte
       "remediation": "Document behaviour for clients without TLS 1.3."
     }
   ],
+  "context": {
+    "claims": [{"id": "C001", "claim": "The service uses TLS 1.3.", "source_sentence": "…"}],
+    "proponent": {"review": "…", "supported_claims": ["C001"], "findings": []},
+    "ipcha": {"contradiction": "…", "findings": [ … ]}
+  },
   "meta": {
     "models": {"proponent": "claude-opus-5", "ipcha": "gpt-4o", "auditor": "claude-opus-5"},
     "claims_extracted": 1,
@@ -267,10 +272,13 @@ Bei mehreren Keys werden zusätzlich die SDK-internen Wiederholungen abgeschalte
 | `ipcha_score` | Divergenz zwischen Proponent- und Auditor-Text. `0.0` = Auditor übernimmt die These wortgleich (Sycophancy-Verdacht), höhere Werte = substanzielle Korrektur |
 | `summary` | Synthese des Auditors in Prosa |
 | `findings[]` | Zusammengeführte Findings mit `severity`, `status`, `rationale`, `remediation` |
+| `context.claims` | Vom Proponent-Modell extrahierte Claims |
+| `context.proponent` | Rohausgabe des Proponenten (These), u. a. `review` |
+| `context.ipcha` | Rohausgabe des Ipcha-Agenten (Antithese), u. a. `contradiction` |
 | `meta.score_metric` | `nli` oder `is_w` — zeigt an, ob der NLI-Service erreichbar war. Derselbe Lauf ergab `0.8802` via NLI und `0.8889` via Jaccard-Fallback; die Aussage (starke Divergenz zwischen These und Synthese) bleibt in beiden Fällen dieselbe |
 | `meta.budget_remaining` | Verbleibende Aufrufe im DoW-Fenster; auch als Header `X-DoW-Budget-Remaining` |
 
-**Zwischenschritte werden bewusst nicht zurückgegeben** — Proponent-Text, Ipcha-Text und die Claim-Liste entstehen, wirken auf das Urteil und werden verworfen.
+**Zwischenschritte stehen in `context`.** Claim-Liste, Proponent- und Ipcha-Ausgabe kommen unverändert zurück. So lässt sich nachvollziehen, wie der Auditor zum Urteil kam. Die Felder darin sind Modellausgabe und nicht schemageprüft. Bei `mode=async` liegen sie mit dem Ergebnis 1 Stunde in Redis.
 
 **Statuscodes**
 
@@ -927,10 +935,10 @@ Reihenfolge der `results` entspricht der Reihenfolge der `pairs`.
 Für die allermeisten Integrationen ist das der ganze Ablauf. Der Endpunkt führt Sanitizing, Claim-Extraktion, Trialektik, Gate und Score selbst aus:
 
 ```
-POST /content   →   { gate, ipcha_score, summary, findings, meta }
+POST /content   →   { gate, ipcha_score, summary, findings, context, meta }
 ```
 
-Nötig sind ein `X-Tenant-Id`-Header und Keys für zwei Provider-Familien. Wer die Zwischenschritte nicht braucht — und darum geht es hier —, braucht keinen der anderen Endpunkte.
+Nötig sind ein `X-Tenant-Id`-Header und Keys für zwei Provider-Familien. Die Zwischenschritte kommen in `context` mit. Andere Endpunkte braucht dieser Weg nicht.
 
 ### B. Selbst orchestrieren
 
