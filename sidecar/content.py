@@ -70,11 +70,10 @@ def run_protocol(
     keys: Optional[Dict[str, str]] = None,
     tenant_id: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Run the trialectic end to end and return only the verdict.
+    """Run the trialectic end to end and return the verdict with its context.
 
-    Intermediate artefacts (proponent text, ipcha text, claim list) are used and
-    discarded; the caller receives the gate decision, the merged findings, the
-    Ipcha Score and provenance metadata.
+    ``context`` carries the intermediate artefacts (claim list, proponent and
+    ipcha output) so a caller can trace how the auditor reached the verdict.
     """
     started = time.monotonic()
 
@@ -156,6 +155,11 @@ def run_protocol(
         "ipcha_score": score.score,
         "summary": audit.get("summary", ""),
         "findings": findings,
+        "context": {
+            "claims": claims,
+            "proponent": proponent,
+            "ipcha": ipcha,
+        },
         "meta": {
             "models": {
                 "proponent": config.proponent_model,

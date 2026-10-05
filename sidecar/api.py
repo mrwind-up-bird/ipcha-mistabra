@@ -394,7 +394,7 @@ def content(
     background: BackgroundTasks,
     mode: Literal["sync", "async"] = "sync",
 ):
-    """Apply the full Ipcha protocol to a text and return only the verdict."""
+    """Apply the full Ipcha protocol to a text and return the verdict with its context."""
     tenant_id = request.headers.get("x-tenant-id")
     if not tenant_id:
         raise HTTPException(

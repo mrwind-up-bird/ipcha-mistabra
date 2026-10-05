@@ -51,13 +51,15 @@ def mock_llm(monkeypatch, creds):
     return client
 
 
-def test_returns_only_the_verdict(no_budget, mock_llm):
+def test_returns_verdict_and_intermediate_context(no_budget, mock_llm):
     result = run_protocol("The service must use TLS 1.3.", ProtocolConfig(), tenant_id="t1")
 
-    assert set(result) == {"gate", "ipcha_score", "summary", "findings", "meta"}
-    # Intermediate artefacts must not leak into the response.
-    for leaked in ("review", "contradiction", "claims", "proponent", "ipcha"):
-        assert leaked not in result
+    assert set(result) == {"gate", "ipcha_score", "summary", "findings", "context", "meta"}
+    assert result["context"] == {
+        "claims": [{"id": "C001", "claim": "x", "source_sentence": "x"}],
+        "proponent": {"review": "Thesis.", "supported_claims": ["C001"], "findings": []},
+        "ipcha": {"contradiction": "Antithesis.", "findings": []},
+    }
 
 
 def test_runs_all_four_roles(no_budget, mock_llm):
